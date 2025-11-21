@@ -10,6 +10,7 @@ import com.example.meditationbiorefactoring.feature_bio.domain.use_case.BrpmMeas
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBrpmMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmState
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +27,7 @@ class BrpmViewModel @Inject constructor(
 
     private val _state = mutableStateOf(BrpmState())
     val state: State<BrpmState> = _state
+
     private val _progress = mutableFloatStateOf(0f)
     val progress: State<Float> = _progress
 
@@ -40,21 +42,20 @@ class BrpmViewModel @Inject constructor(
                     isLoading = false,
                 )
             }
-            is BrpmEvent.Retry -> {
-                viewModelScope.launch {
-                    resetBrpmMeasurementUseCase()
-                    _state.value = BrpmState()
-                    _state.value = _state.value.copy(
-                        isMeasuring = true
-                    )
-                }
-            }
             is BrpmEvent.DataCaptured -> {
                 processFrame(event.z)
             }
             is BrpmEvent.NavigateClick -> {
                 viewModelScope.launch {
                     _navigateEvent.send(Unit)
+                }
+            }
+
+            BrpmEvent.Reset -> {
+                _progress.floatValue = 0f
+                _state.value = BrpmState()
+                viewModelScope.launch {
+                    resetBrpmMeasurementUseCase()
                 }
             }
         }

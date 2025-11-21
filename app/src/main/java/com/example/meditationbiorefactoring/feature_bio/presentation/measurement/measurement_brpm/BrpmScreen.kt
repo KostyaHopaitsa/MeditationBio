@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +18,7 @@ import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorT
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementStart
 import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementResult
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmEvent
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_brpm.components.BrpmSensorListener
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_siv.SivEvent
 
@@ -63,7 +65,7 @@ fun BrpmScreen(
                     type = "BRPM",
                     buttonDescription = "To SIV",
                     onNavigate =  { viewModel.onEvent(BrpmEvent.NavigateClick) },
-                    onRestart = { viewModel.onEvent(BrpmEvent.Retry) }
+                    onRestart = { viewModel.onEvent(BrpmEvent.Reset) }
                 )
             }
             state.error != null -> {
@@ -74,7 +76,7 @@ fun BrpmScreen(
                 }
                 Error(
                     message = errorMessage,
-                    onRetry = { viewModel.onEvent(BrpmEvent.Retry) }
+                    onRetry = { viewModel.onEvent(BrpmEvent.Reset) }
                 )
             }
             else -> {
@@ -83,6 +85,12 @@ fun BrpmScreen(
                     onStart = { viewModel.onEvent(BrpmEvent.Start) }
                 )
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(BrpmEvent.Reset)
         }
     }
 }

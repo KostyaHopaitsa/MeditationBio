@@ -49,22 +49,20 @@ class BpmViewModel @Inject constructor(
                     isTorchEnabled = true,
                 )
             }
-            is BpmEvent.Retry -> {
-                viewModelScope.launch {
-                    resetBpmMeasurementUseCase()
-                    _state.value = BpmState()
-                    _state.value = _state.value.copy(
-                        isMeasuring = true,
-                        isTorchEnabled = true,
-                    )
-                }
-            }
             is BpmEvent.FrameCaptured -> {
                 processFrame(event.buffer)
             }
             is BpmEvent.NavigateClick -> {
                 viewModelScope.launch {
                     _navigateEvent.send(Unit)
+                }
+            }
+            is BpmEvent.Reset -> {
+                firstProgressValue = null
+                _progress.floatValue = 0f
+                _state.value = BpmState()
+                viewModelScope.launch {
+                    resetBpmMeasurementUseCase()
                 }
             }
         }
@@ -79,10 +77,12 @@ class BpmViewModel @Inject constructor(
                 firstProgressValue = _progress.floatValue
             }
 
-            if(_progress.floatValue == 1F - firstProgressValue!! * 2) {
-                _state.value = _state.value.copy(
-                    isTorchEnabled = false,
-                )
+            firstProgressValue?.let { first ->
+                if (_progress.floatValue == 1f - first * 2) {
+                    _state.value = _state.value.copy(
+                        isTorchEnabled = false
+                    )
+                }
             }
 
             when (val result = analysis.result) {

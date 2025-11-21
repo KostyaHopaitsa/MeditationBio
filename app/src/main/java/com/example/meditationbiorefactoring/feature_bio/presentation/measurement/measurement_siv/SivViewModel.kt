@@ -10,6 +10,7 @@ import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StartSiv
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StopSivAndAnalyzeUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmState
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -68,10 +69,10 @@ class SivViewModel @Inject constructor(
                     }
                 }
             }
-            is SivEvent.Retry -> {
+            SivEvent.Reset -> {
+                _state.value = SivState()
                 viewModelScope.launch {
                     resetSivMeasurementUseCase()
-                    _state.value = SivState()
                 }
             }
             is SivEvent.NavigateClick -> {

@@ -12,6 +12,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +65,7 @@ fun SivScreen(
                     type = "SIV",
                     buttonDescription = "To Music",
                     onNavigate = { viewModel.onEvent(SivEvent.NavigateClick) },
-                    onRestart = { viewModel.onEvent(SivEvent.Retry) }
+                    onRestart = { viewModel.onEvent(SivEvent.Reset) }
                 )
             }
             state.error != null -> {
@@ -75,7 +76,7 @@ fun SivScreen(
                 }
                 Error(
                     message = errorMessage,
-                    onRetry = { viewModel.onEvent(SivEvent.Retry) }
+                    onRetry = { viewModel.onEvent(SivEvent.Reset) }
                 )
             }
             else -> {
@@ -84,6 +85,12 @@ fun SivScreen(
                     onStart = { viewModel.onEvent(SivEvent.Start) }
                 )
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(SivEvent.Reset)
         }
     }
 }

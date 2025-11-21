@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,7 +70,7 @@ fun BpmScreen(
                     type = "BPM",
                     buttonDescription = "To BRPM",
                     onNavigate = { viewModel.onEvent(BpmEvent.NavigateClick) },
-                    onRestart = { viewModel.onEvent(BpmEvent.Retry) }
+                    onRestart = { viewModel.onEvent(BpmEvent.Reset) }
                 )
 
             }
@@ -82,7 +83,7 @@ fun BpmScreen(
                 }
                 Error(
                     message = errorMessage,
-                    onRetry = { viewModel.onEvent(BpmEvent.Retry) }
+                    onRetry = { viewModel.onEvent(BpmEvent.Reset) }
                 )
             }
 
@@ -92,6 +93,12 @@ fun BpmScreen(
                     onStart = { viewModel.onEvent(BpmEvent.Start) }
                 )
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(BpmEvent.Reset)
         }
     }
 }
