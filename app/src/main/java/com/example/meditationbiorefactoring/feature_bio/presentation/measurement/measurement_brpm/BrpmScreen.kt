@@ -16,11 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
-import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementStart
-import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementResult
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmEvent
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementStart
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementResult
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_brpm.components.BrpmSensorListener
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_siv.SivEvent
 
 @Composable
 fun BrpmScreen(

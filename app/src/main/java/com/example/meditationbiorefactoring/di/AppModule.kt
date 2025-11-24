@@ -80,13 +80,13 @@ object AppModule {
             app,
             MeasurementDatabase::class.java,
             MeasurementDatabase.DATABASE_NAME
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
     @Singleton
     fun provideMeasurementRepository(db: MeasurementDatabase): MeasurementRepository {
-        return MeasurementRepositoryImpl(db.measurementDao)
+        return MeasurementRepositoryImpl(db.measurementDao())
     }
 
     @Provides

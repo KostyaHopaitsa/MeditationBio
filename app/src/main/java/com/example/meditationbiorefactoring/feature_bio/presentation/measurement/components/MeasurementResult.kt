@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.components
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

@@ -24,7 +24,7 @@ fun Error(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "error: $message",
+            text = message,
             color = MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.height(16.dp))

@@ -6,23 +6,37 @@ import com.example.meditationbiorefactoring.feature_bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
 import android.media.MediaRecorder
 import com.example.meditationbiorefactoring.feature_bio.domain.util.SignalProcessing
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 class SivAnalyzerCore {
+
     private val sampleRate = 16000
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+
     private var recorder: AudioRecord? = null
     private lateinit var buffer: ShortArray
     private var bufferSize = 0
     private var currentIndex = 0
+    private var recordingJob: Job? = null
     private var isRecording = false
 
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
     fun startRecording() {
+        if (isRecording) return
+
         try {
             bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
             if (bufferSize <= 0) return
+
             buffer = ShortArray(bufferSize * 5)
 
             recorder = AudioRecord(
@@ -31,45 +45,52 @@ class SivAnalyzerCore {
                 channelConfig,
                 audioFormat,
                 bufferSize
-            )
-
-            if (recorder?.state != AudioRecord.STATE_INITIALIZED) return
+            ).apply {
+                if (state != AudioRecord.STATE_INITIALIZED) return
+                startRecording()
+            }
 
             isRecording = true
             currentIndex = 0
-            recorder?.startRecording()
 
-            Thread {
+            recordingJob = scope.launch {
                 while (isRecording && currentIndex < buffer.size) {
                     val read = recorder?.read(buffer, currentIndex, buffer.size - currentIndex) ?: 0
                     if (read > 0) currentIndex += read
+                    delay(5)
                 }
-            }.start()
+            }
+
         } catch (_: SecurityException) {
-            isRecording = false
-            recorder?.release()
-            recorder = null
+            stopRecording()
         }
     }
 
     fun stopAndAnalyze(): MeasurementAnalysis {
-        if (!isRecording || recorder == null) return MeasurementAnalysis(MeasurementResult.Error, 0f)
-        if (currentIndex <= 0) return MeasurementAnalysis(MeasurementResult.Error, 1f)
+        if (!isRecording || recorder == null) return MeasurementAnalysis(MeasurementResult.Error)
+        if (currentIndex <= 0) return MeasurementAnalysis(MeasurementResult.Error)
 
+        stopRecording()
+
+        val result = analyze(buffer, currentIndex)
+        return MeasurementAnalysis(MeasurementResult.Success(result))
+    }
+
+    private fun stopRecording() {
         isRecording = false
+        recordingJob?.cancel()
+        recordingJob = null
+
         try {
             recorder?.stop()
         } catch (_: IllegalStateException) {}
         recorder?.release()
         recorder = null
-
-        val result = analyze(buffer, currentIndex)
-        return MeasurementAnalysis(MeasurementResult.Success(result), progress = 1f)
     }
 
     fun reset() {
+        stopRecording()
         currentIndex = 0
-        isRecording = false
         buffer = ShortArray(0)
     }
 

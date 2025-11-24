@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
-import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementStart
-import com.example.meditationbiorefactoring.feature_bio.presentation.components.MeasurementResult
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementStart
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementResult
 
 @Composable
 fun SivScreen(

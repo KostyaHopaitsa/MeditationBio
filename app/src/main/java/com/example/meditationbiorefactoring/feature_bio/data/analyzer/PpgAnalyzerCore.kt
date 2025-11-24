@@ -1,6 +1,5 @@
 package com.example.meditationbiorefactoring.feature_bio.data.analyzer
 
-import android.util.Log
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementAnalysis
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
 import com.example.meditationbiorefactoring.feature_bio.domain.util.SignalProcessing
@@ -77,7 +76,6 @@ class PpgAnalyzerCore @Inject constructor() {
 
         val durationSec = (times.last() - times.first()) / 1000.0
         val bpm = (peaks * 60 / durationSec).toInt()
-        Log.d("bpmResult", "BPM=$bpm peaks=$peaks duration=$durationSec")
         return bpm
     }
 }

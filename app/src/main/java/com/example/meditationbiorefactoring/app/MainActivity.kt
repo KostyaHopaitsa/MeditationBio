@@ -23,14 +23,22 @@ class MainActivity : ComponentActivity() {
             val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
             val micGranted = permissions[Manifest.permission.RECORD_AUDIO] ?: false
 
-            if (cameraGranted && micGranted) {
-                launchApp()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Camera and microphone permissions are required",
-                    Toast.LENGTH_LONG
-                ).show()
+            when{
+                !cameraGranted -> {
+                    Toast.makeText(
+                        this,
+                        "Camera permissions is required",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                !micGranted -> {
+                    Toast.makeText(
+                        this,
+                        "microphone permissions is required",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                else -> { launchApp() }
             }
         }
 

@@ -1,6 +1,5 @@
 package com.example.meditationbiorefactoring.feature_bio.domain.use_case
 
-import android.util.Log
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementAnalysis
 import com.example.meditationbiorefactoring.feature_bio.domain.repository.BpmRepository
 import javax.inject.Inject
