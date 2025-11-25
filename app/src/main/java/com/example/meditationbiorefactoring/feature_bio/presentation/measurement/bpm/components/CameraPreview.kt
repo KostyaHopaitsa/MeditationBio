@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.components
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm.components
 
 import android.graphics.ImageFormat
 import android.util.Log

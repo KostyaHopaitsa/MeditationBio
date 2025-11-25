@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_brpm
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.brpm
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
@@ -10,7 +10,6 @@ import com.example.meditationbiorefactoring.feature_bio.domain.use_case.BrpmMeas
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBrpmMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmState
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

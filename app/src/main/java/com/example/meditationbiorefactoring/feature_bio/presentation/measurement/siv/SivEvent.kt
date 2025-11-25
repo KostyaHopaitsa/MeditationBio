@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_siv
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv
 
 sealed class SivEvent {
     data object Start : SivEvent()

@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_brpm
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.brpm
 
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 

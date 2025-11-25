@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm
 
 sealed class BpmEvent {
     data object Start : BpmEvent()

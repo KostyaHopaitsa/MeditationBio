@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_siv
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +10,6 @@ import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StartSiv
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StopSivAndAnalyzeUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmState
 import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

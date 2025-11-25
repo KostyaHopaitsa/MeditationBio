@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm
+package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -105,6 +105,7 @@ class BpmViewModel @Inject constructor(
                 }
                 is MeasurementResult.Error -> {
                     _state.value = _state.value.copy(
+                        isMeasuring = false,
                         error = ErrorType.UnknownError,
                     )
                 }

@@ -10,9 +10,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.meditationbiorefactoring.app.presentation.HomeScreen
 import com.example.meditationbiorefactoring.feature_bio.presentation.bio_history.BioHistoryScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_bpm.BpmScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_brpm.BrpmScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.measurement_siv.SivScreen
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm.BpmScreen
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.brpm.BrpmScreen
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv.SivScreen
 import com.example.meditationbiorefactoring.feature_music.presentation.MusicScreen
 
 @Composable
