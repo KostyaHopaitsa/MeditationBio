@@ -66,6 +66,7 @@ class SivViewModel @Inject constructor(
                         }
                         is MeasurementResult.Invalid -> {
                             _state.value = _state.value.copy(
+                                isMeasuring = false,
                                 error = ErrorType.MeasureError
                             )
                         }

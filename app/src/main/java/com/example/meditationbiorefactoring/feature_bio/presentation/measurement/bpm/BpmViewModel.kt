@@ -90,7 +90,6 @@ class BpmViewModel @Inject constructor(
                 }
                 is MeasurementResult.Error -> {
                     _state.value = _state.value.copy(
-                        isMeasuring = false,
                         error = ErrorType.UnknownError,
                     )
                 }
