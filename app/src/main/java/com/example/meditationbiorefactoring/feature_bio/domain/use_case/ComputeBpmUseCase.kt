@@ -4,7 +4,7 @@ import com.example.meditationbiorefactoring.feature_bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.feature_bio.domain.repository.BpmRepository
 import javax.inject.Inject
 
-class BpmMeasurementUseCase @Inject constructor(
+class ComputeBpmUseCase @Inject constructor(
     private val repository: BpmRepository
 ) {
     suspend operator fun invoke(buffer: ByteArray): MeasurementAnalysis {

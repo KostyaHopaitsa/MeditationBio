@@ -1,6 +1,6 @@
 package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv
 
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 
 data class SivState(
     val isLoading: Boolean = false,

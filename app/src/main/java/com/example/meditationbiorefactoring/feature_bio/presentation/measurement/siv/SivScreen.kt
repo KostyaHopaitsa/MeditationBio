@@ -12,13 +12,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementResult
@@ -28,7 +29,7 @@ fun SivScreen(
     onNavigateToMusic: (String) -> Unit,
     viewModel: SivViewModel = hiltViewModel(),
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect { overall ->
@@ -69,7 +70,7 @@ fun SivScreen(
                 )
             }
             state.error != null -> {
-                val errorMessage = when (state.error) {
+                val errorMessage = when (state.error!!) {
                     ErrorType.SensorError -> "Micro initialization failed"
                     ErrorType.MeasureError -> "Measurement failed"
                     ErrorType.UnknownError -> "Unknown error"
@@ -82,15 +83,12 @@ fun SivScreen(
             else -> {
                 MeasurementStart(
                     type = "SIV",
-                    onStart = { viewModel.onEvent(SivEvent.Start) }
+                    onStart = {
+                        viewModel.onEvent(SivEvent.Reset)
+                        viewModel.onEvent(SivEvent.Start)
+                    }
                 )
             }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.onEvent(SivEvent.Reset)
         }
     }
 }

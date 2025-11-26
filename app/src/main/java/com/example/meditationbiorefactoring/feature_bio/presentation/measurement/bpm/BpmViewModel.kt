@@ -1,15 +1,12 @@
 package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.feature_bio.domain.use_case.BpmMeasurementUseCase
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ComputeBpmUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBpmMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
@@ -22,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class BpmViewModel @Inject constructor(
-    private val bpmMeasurementUseCase: BpmMeasurementUseCase,
+    private val bpmMeasurementUseCase: ComputeBpmUseCase,
     private val resetBpmMeasurementUseCase: ResetBpmMeasurementUseCase,
     private val aggregator: MeasurementAggregator
 ) : ViewModel() {
@@ -93,6 +90,7 @@ class BpmViewModel @Inject constructor(
                 }
                 is MeasurementResult.Error -> {
                     _state.value = _state.value.copy(
+                        isMeasuring = false,
                         error = ErrorType.UnknownError,
                     )
                 }

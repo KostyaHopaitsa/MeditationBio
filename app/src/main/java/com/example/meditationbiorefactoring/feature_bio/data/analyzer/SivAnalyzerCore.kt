@@ -2,8 +2,6 @@ package com.example.meditationbiorefactoring.feature_bio.data.analyzer
 
 import android.media.AudioFormat
 import android.media.AudioRecord
-import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementAnalysis
-import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
 import android.media.MediaRecorder
 import com.example.meditationbiorefactoring.feature_bio.domain.util.SignalProcessing
 import kotlinx.coroutines.CoroutineScope
@@ -66,17 +64,7 @@ class SivAnalyzerCore {
         }
     }
 
-    fun stopAndAnalyze(): MeasurementAnalysis {
-        if (!isRecording || recorder == null) return MeasurementAnalysis(MeasurementResult.Error)
-        if (currentIndex <= 0) return MeasurementAnalysis(MeasurementResult.Error)
-
-        stopRecording()
-
-        val result = analyze(buffer, currentIndex)
-        return MeasurementAnalysis(MeasurementResult.Success(result))
-    }
-
-    private fun stopRecording() {
+    fun stopRecording(){
         isRecording = false
         recordingJob?.cancel()
         recordingJob = null
@@ -88,18 +76,25 @@ class SivAnalyzerCore {
         recorder = null
     }
 
-    fun reset() {
-        stopRecording()
-        currentIndex = 0
-        buffer = ShortArray(0)
+    fun getRawData(): Pair<ShortArray, Int> {
+        if (!::buffer.isInitialized || currentIndex <= 0)
+            return ShortArray(0) to 0
+
+        return buffer to currentIndex
     }
 
-    private fun analyze(buffer: ShortArray, length: Int): Double {
+    fun computeSiv(buffer: ShortArray, length: Int): Double {
         val norm = buffer.take(length).map { it / 32768.0 }.toDoubleArray()
         val normalized = SignalProcessing.normalize(norm)
         val rms = sqrt(normalized.map { it * it }.average())
         val mean = normalized.average()
         val std = sqrt(normalized.map { (it - mean).pow(2) }.average())
         return rms + std
+    }
+
+    fun reset() {
+        stopRecording()
+        currentIndex = 0
+        buffer = ShortArray(0)
     }
 }

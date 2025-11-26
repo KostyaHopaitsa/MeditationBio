@@ -4,7 +4,7 @@ import com.example.meditationbiorefactoring.feature_bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.feature_bio.domain.repository.BrpmRepository
 import javax.inject.Inject
 
-class BrpmMeasurementUseCase @Inject constructor(
+class ComputeBrpmUseCase @Inject constructor(
     private val repository: BrpmRepository
 ) {
     suspend operator fun invoke(z: Float): MeasurementAnalysis {

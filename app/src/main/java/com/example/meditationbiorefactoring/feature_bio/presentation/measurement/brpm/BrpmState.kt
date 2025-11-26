@@ -1,6 +1,6 @@
 package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.brpm
 
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 
 data class BrpmState(
     val isLoading: Boolean = false,

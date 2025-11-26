@@ -1,18 +1,21 @@
 package com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ComputeSivUseCase
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.GetRawSivDataUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetSivMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StartSivRecordingUseCase
-import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StopSivAndAnalyzeUseCase
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.StopSivUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,13 +23,15 @@ import javax.inject.Inject
 @HiltViewModel
 class SivViewModel @Inject constructor(
     private val startSivRecordingUseCase: StartSivRecordingUseCase,
-    private val stopSivAndAnalyzeUseCase: StopSivAndAnalyzeUseCase,
+    private val stopSivUseCase: StopSivUseCase,
+    private val getRawSivDataUseCase: GetRawSivDataUseCase,
+    private val computeSivUseCase: ComputeSivUseCase,
     private val resetSivMeasurementUseCase: ResetSivMeasurementUseCase,
     private val aggregator: MeasurementAggregator,
 ): ViewModel() {
 
-    private val _state = mutableStateOf(SivState())
-    val state: State<SivState> = _state
+    private val _state = MutableStateFlow(SivState())
+    val state: StateFlow<SivState> = _state
 
     private val _navigateEvent = Channel<String>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
@@ -41,7 +46,11 @@ class SivViewModel @Inject constructor(
             }
             is SivEvent.Stop -> {
                 viewModelScope.launch {
-                    val analysis = stopSivAndAnalyzeUseCase()
+                    stopSivUseCase()
+                    val (buffer, length) = getRawSivDataUseCase()
+                    Log.d("analysis", "$buffer, $length")
+                    val analysis = computeSivUseCase(buffer, length)
+                    Log.d("analysis", "$analysis")
                     when (val result = analysis.result) {
                         is MeasurementResult.Success -> {
                             _state.value = _state.value.copy(

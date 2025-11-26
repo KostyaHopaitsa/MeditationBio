@@ -31,9 +31,9 @@ class PpgAnalyzerCore @Inject constructor() {
             val bpm = computeBpm(values, timestamps)
             done = true
             lastResult = if (bpm in 40..150) {
-                MeasurementAnalysis(MeasurementResult.Success(bpm.toDouble()), 1f)
+                MeasurementAnalysis(MeasurementResult.Success(bpm.toDouble()), progress)
             } else {
-                MeasurementAnalysis(MeasurementResult.Invalid, 1f)
+                MeasurementAnalysis(MeasurementResult.Invalid(bpm.toDouble()), progress)
             }
             lastResult!!
         } else {

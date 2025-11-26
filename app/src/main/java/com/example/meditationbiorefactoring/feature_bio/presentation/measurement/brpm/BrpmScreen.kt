@@ -8,13 +8,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementResult
@@ -25,7 +26,8 @@ fun BrpmScreen(
     onNavigateToSiv: () -> Unit,
     viewModel: BrpmViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
+    val progress by viewModel.progress.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect {
@@ -49,7 +51,7 @@ fun BrpmScreen(
                     viewModel.onEvent(BrpmEvent.DataCaptured(z))
                 }
                 LinearProgressIndicator(
-                    progress = { viewModel.progress.value },
+                    progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
@@ -67,7 +69,7 @@ fun BrpmScreen(
                 )
             }
             state.error != null -> {
-                val errorMessage = when (state.error) {
+                val errorMessage = when (state.error!!) {
                     ErrorType.SensorError -> "Accelerator initialization failed"
                     ErrorType.MeasureError -> "Measurement failed"
                     ErrorType.UnknownError -> "Unknown error"
@@ -80,15 +82,12 @@ fun BrpmScreen(
             else -> {
                 MeasurementStart(
                     type = "BRPM",
-                    onStart = { viewModel.onEvent(BrpmEvent.Start) }
+                    onStart = {
+                        viewModel.onEvent(BrpmEvent.Reset)
+                        viewModel.onEvent(BrpmEvent.Start)
+                    }
                 )
             }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.onEvent(BrpmEvent.Reset)
         }
     }
 }
