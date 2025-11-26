@@ -13,8 +13,10 @@ import com.example.meditationbiorefactoring.feature_bio.domain.use_case.BpmMeasu
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBpmMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -25,12 +27,11 @@ class BpmViewModel @Inject constructor(
     private val aggregator: MeasurementAggregator
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(BpmState())
-    val state: State<BpmState> = _state
+    private val _state = MutableStateFlow(BpmState())
+    val state: StateFlow<BpmState> = _state
 
-    private val _progress = mutableFloatStateOf(0f)
-    val progress: State<Float> = _progress
-    private var firstProgressValue: Float? = null
+    private val _progress = MutableStateFlow(0f)
+    val progress: StateFlow<Float> = _progress
 
     private val _navigateEvent = Channel<Unit>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
@@ -58,8 +59,7 @@ class BpmViewModel @Inject constructor(
                 }
             }
             is BpmEvent.Reset -> {
-                firstProgressValue = null
-                _progress.floatValue = 0f
+                _progress.value = 0f
                 _state.value = BpmState()
                 viewModelScope.launch {
                     resetBpmMeasurementUseCase()
@@ -68,22 +68,10 @@ class BpmViewModel @Inject constructor(
         }
     }
 
-    private fun processFrame(buffer: ByteArray) {
+    fun processFrame(buffer: ByteArray) {
         viewModelScope.launch {
             val analysis = bpmMeasurementUseCase(buffer)
-            _progress.floatValue = analysis.progress
-
-            if (firstProgressValue == null) {
-                firstProgressValue = _progress.floatValue
-            }
-
-            firstProgressValue?.let { first ->
-                if (_progress.floatValue == 1f - first * 2) {
-                    _state.value = _state.value.copy(
-                        isTorchEnabled = false
-                    )
-                }
-            }
+            _progress.value = analysis.progress
 
             when (val result = analysis.result) {
                 is MeasurementResult.Success -> {
@@ -105,7 +93,6 @@ class BpmViewModel @Inject constructor(
                 }
                 is MeasurementResult.Error -> {
                     _state.value = _state.value.copy(
-                        isMeasuring = false,
                         error = ErrorType.UnknownError,
                     )
                 }

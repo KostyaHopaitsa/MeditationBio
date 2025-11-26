@@ -11,11 +11,18 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.meditationbiorefactoring.feature_bio.presentation.util.ErrorType
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.components.MeasurementResult
@@ -26,12 +33,29 @@ fun BpmScreen(
     onNavigateToBrpm: () -> Unit,
     viewModel: BpmViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
+    val progress by viewModel.progress.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
+    val cameraController = remember {
+        CameraController(context, lifecycleOwner) { buffer ->
+            viewModel.processFrame(buffer)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect {
             onNavigateToBrpm()
         }
+    }
+    LaunchedEffect(state.isMeasuring) {
+        cameraController.startCamera()
+        cameraController.enableTorch(true)
+    }
+    LaunchedEffect(state.isMeasured) {
+        cameraController.enableTorch(false)
+        cameraController.stopCamera()
     }
 
     Box(
@@ -44,24 +68,19 @@ fun BpmScreen(
             state.isLoading -> {
                 CircularProgressIndicator()
             }
-
             state.isMeasuring -> {
                 CameraPreview(
-                    modifier = Modifier.fillMaxSize(),
-                    onFrameCaptured = { buffer ->
-                        viewModel.onEvent(BpmEvent.FrameCaptured(buffer))
-                    },
-                    enableTorch = state.isTorchEnabled
+                    cameraController,
+                    modifier = Modifier.fillMaxSize()
                 )
                 LinearProgressIndicator(
-                    progress = { viewModel.progress.value },
+                    progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
                         .padding(25.dp),
                 )
             }
-
             state.isMeasured -> {
                 MeasurementResult(
                     status = state.status,
@@ -73,9 +92,8 @@ fun BpmScreen(
                 )
 
             }
-
             state.error != null -> {
-                val errorMessage = when (state.error) {
+                val errorMessage = when (state.error!!) {
                     ErrorType.SensorError -> "Camera initialization failed"
                     ErrorType.MeasureError -> "Measurement failed"
                     ErrorType.UnknownError -> "Unknown error"
@@ -85,19 +103,27 @@ fun BpmScreen(
                     onRetry = { viewModel.onEvent(BpmEvent.Reset) }
                 )
             }
-
             else -> {
                 MeasurementStart(
                     type = "BPM",
-                    onStart = { viewModel.onEvent(BpmEvent.Start) }
+                    onStart = {
+                        viewModel.onEvent(BpmEvent.Reset)
+                        viewModel.onEvent(BpmEvent.Start)
+                    }
                 )
             }
         }
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.onEvent(BpmEvent.Reset)
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && state.isMeasuring) {
+                cameraController.enableTorch(true)
+            }
         }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 }
