@@ -1,7 +1,6 @@
 package com.example.meditationbiorefactoring.feature_bio.data.analyzer
 
-import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementAnalysis
-import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
+import com.example.meditationbiorefactoring.feature_bio.domain.model.PpgSignalResult
 import com.example.meditationbiorefactoring.feature_bio.domain.util.SignalProcessing
 import javax.inject.Inject
 
@@ -10,11 +9,8 @@ class PpgAnalyzerCore @Inject constructor() {
     private val values = mutableListOf<Double>()
     private val timestamps = mutableListOf<Long>()
     private val maxBufferSize = 200
-    private var done = false
-    private var lastResult: MeasurementAnalysis? = null
 
-    fun analyzeFrame(buffer: ByteArray): MeasurementAnalysis {
-        if (done) return lastResult ?: MeasurementAnalysis(MeasurementResult.Error, 1f)
+    fun collectPpgSignal(buffer: ByteArray): PpgSignalResult {
 
         val avg = buffer.map { it.toInt() and 0xFF }.average()
         values.add(avg)
@@ -27,28 +23,15 @@ class PpgAnalyzerCore @Inject constructor() {
 
         val progress = values.size / maxBufferSize.toFloat()
 
-        return if (values.size == maxBufferSize) {
-            val bpm = computeBpm(values, timestamps)
-            done = true
-            lastResult = if (bpm in 40..150) {
-                MeasurementAnalysis(MeasurementResult.Success(bpm.toDouble()), progress)
-            } else {
-                MeasurementAnalysis(MeasurementResult.Invalid(bpm.toDouble()), progress)
-            }
-            lastResult!!
-        } else {
-            MeasurementAnalysis(MeasurementResult.Error, progress)
-        }
+        return PpgSignalResult(values, timestamps, progress)
     }
 
     fun reset() {
         values.clear()
         timestamps.clear()
-        done = false
-        lastResult = null
     }
 
-    private fun computeBpm(signal: List<Double>, times: List<Long>): Int {
+    fun computeBpm(signal: List<Double>, times: List<Long>): Double {
         val smoothed = SignalProcessing.ema(signal.toDoubleArray(), alpha = 0.5)
         val normalized = SignalProcessing.normalize(smoothed)
         val filtered = SignalProcessing.bandpass(normalized)
@@ -75,7 +58,7 @@ class PpgAnalyzerCore @Inject constructor() {
         }
 
         val durationSec = (times.last() - times.first()) / 1000.0
-        val bpm = (peaks * 60 / durationSec).toInt()
+        val bpm = (peaks * 60 / durationSec)
         return bpm
     }
 }

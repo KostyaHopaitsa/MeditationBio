@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ComputeBrpmUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBrpmMeasurementUseCase
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.CollectZValuesUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.MeasurementAggregator
 import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.util.ErrorType
@@ -14,11 +15,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class BrpmViewModel @Inject constructor(
     private val computeBrpmUseCase: ComputeBrpmUseCase,
+    private val collectZValuesUseCase: CollectZValuesUseCase,
     private val resetBrpmMeasurementUseCase: ResetBrpmMeasurementUseCase,
     private val aggregator: MeasurementAggregator
 ): ViewModel() {
@@ -59,17 +62,18 @@ class BrpmViewModel @Inject constructor(
         }
     }
 
-    private fun processFrame(z: Float) {
+    private fun processFrame(z: Double) {
         viewModelScope.launch {
-            val analysis = computeBrpmUseCase(z)
-            _progress.value = analysis.progress
+            val zValuesCollector = collectZValuesUseCase(z)
+            val brpm = computeBrpmUseCase(zValuesCollector.values,zValuesCollector.progress)
+            _progress.value = brpm.progress
 
-            when (val result = analysis.result) {
+            when (val result = brpm.result) {
                 is MeasurementResult.Success -> {
                     _state.value = _state.value.copy(
                         isMeasuring = false,
                         isMeasured = true,
-                        value = result.value.toString(),
+                        value = String.format(Locale.US, "%.2f", result.value),
                         status = if (result.value < 12) "low"
                         else if (result.value > 25) "high"
                         else "normal",

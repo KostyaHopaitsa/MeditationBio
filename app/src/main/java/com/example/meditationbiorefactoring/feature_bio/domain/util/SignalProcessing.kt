@@ -5,13 +5,13 @@ import kotlin.math.sqrt
 
 object SignalProcessing {
 
-    fun movingAverage(data: List<Float>, window: Int = 10): List<Float> {
+    fun movingAverage(data: List<Double>, window: Int = 10): List<Double> {
         if (data.isEmpty()) return emptyList()
-        val smooth = mutableListOf<Float>()
+        val smooth = mutableListOf<Double>()
         for (i in data.indices) {
             val start = maxOf(0, i - window)
             val end = minOf(data.size - 1, i + window)
-            val avg = data.subList(start, end).average().toFloat()
+            val avg = data.subList(start, end).average()
             smooth.add(avg)
         }
         return smooth

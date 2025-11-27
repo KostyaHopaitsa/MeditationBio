@@ -1,8 +1,9 @@
 package com.example.meditationbiorefactoring.feature_bio.domain.repository
 
-import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementAnalysis
+import com.example.meditationbiorefactoring.feature_bio.domain.model.ZSignalResult
 
 interface BrpmRepository {
-    suspend fun processFrame(z: Float): MeasurementAnalysis
+    suspend fun collectZValues(z: Double): ZSignalResult
+    suspend fun computeBrpm(values: List<Double>): Double
     suspend fun reset()
 }

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,16 +48,14 @@ class SivViewModel @Inject constructor(
             is SivEvent.Stop -> {
                 viewModelScope.launch {
                     stopSivUseCase()
-                    val (buffer, length) = getRawSivDataUseCase()
-                    Log.d("analysis", "$buffer, $length")
-                    val analysis = computeSivUseCase(buffer, length)
-                    Log.d("analysis", "$analysis")
+                    val rawDat = getRawSivDataUseCase()
+                    val analysis = computeSivUseCase(rawDat.buffer, rawDat.currentIndex)
                     when (val result = analysis.result) {
                         is MeasurementResult.Success -> {
                             _state.value = _state.value.copy(
                                 isMeasuring = false,
                                 isMeasured = true,
-                                value = result.value.toString(),
+                                value = String.format(Locale.US, "%.3f", result.value),
                                 status = if (result.value < 0.03) "low"
                                 else if (result.value > 0.09) "high"
                                 else "normal",

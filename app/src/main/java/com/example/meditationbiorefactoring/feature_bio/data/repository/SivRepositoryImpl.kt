@@ -2,6 +2,7 @@ package com.example.meditationbiorefactoring.feature_bio.data.repository
 
 import com.example.meditationbiorefactoring.feature_bio.domain.repository.SivRepository
 import com.example.meditationbiorefactoring.feature_bio.data.analyzer.SivAnalyzerCore
+import com.example.meditationbiorefactoring.feature_bio.domain.model.SivRawData
 import javax.inject.Inject
 
 class SivRepositoryImpl @Inject constructor(
@@ -16,7 +17,7 @@ class SivRepositoryImpl @Inject constructor(
         analyzer.stopRecording()
     }
 
-    override suspend fun getRawData(): Pair<ShortArray, Int> {
+    override suspend fun getRawData(): SivRawData {
         return analyzer.getRawData()
     }
 

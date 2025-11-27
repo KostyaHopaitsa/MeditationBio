@@ -3,6 +3,7 @@ package com.example.meditationbiorefactoring.feature_bio.data.analyzer
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import com.example.meditationbiorefactoring.feature_bio.domain.model.SivRawData
 import com.example.meditationbiorefactoring.feature_bio.domain.util.SignalProcessing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,6 @@ class SivAnalyzerCore {
     private val sampleRate = 16000
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-
     private var recorder: AudioRecord? = null
     private lateinit var buffer: ShortArray
     private var bufferSize = 0
@@ -76,11 +76,11 @@ class SivAnalyzerCore {
         recorder = null
     }
 
-    fun getRawData(): Pair<ShortArray, Int> {
+    fun getRawData(): SivRawData {
         if (!::buffer.isInitialized || currentIndex <= 0)
-            return ShortArray(0) to 0
+            return SivRawData(ShortArray(0) , 0)
 
-        return buffer to currentIndex
+        return SivRawData(buffer.copyOf(), currentIndex)
     }
 
     fun computeSiv(buffer: ShortArray, length: Int): Double {

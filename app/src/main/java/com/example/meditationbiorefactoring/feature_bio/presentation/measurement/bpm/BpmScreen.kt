@@ -49,14 +49,6 @@ fun BpmScreen(
             onNavigateToBrpm()
         }
     }
-    LaunchedEffect(state.isMeasuring) {
-        cameraController.startCamera()
-        cameraController.enableTorch(true)
-    }
-    LaunchedEffect(state.isMeasured) {
-        cameraController.enableTorch(false)
-        cameraController.stopCamera()
-    }
 
     Box(
         modifier = Modifier
@@ -113,17 +105,5 @@ fun BpmScreen(
                 )
             }
         }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && state.isMeasuring) {
-                cameraController.enableTorch(true)
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 }

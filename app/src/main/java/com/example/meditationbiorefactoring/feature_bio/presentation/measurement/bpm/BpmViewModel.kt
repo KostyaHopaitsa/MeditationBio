@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.feature_bio.domain.model.MeasurementResult
+import com.example.meditationbiorefactoring.feature_bio.domain.use_case.CollectPpgSignalUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ComputeBpmUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.use_case.ResetBpmMeasurementUseCase
 import com.example.meditationbiorefactoring.feature_bio.domain.util.BioParamType
@@ -16,10 +17,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @HiltViewModel
 class BpmViewModel @Inject constructor(
-    private val bpmMeasurementUseCase: ComputeBpmUseCase,
+    private val computeBpmUseCase: ComputeBpmUseCase,
+    private val collectPpgSignalUseCase: CollectPpgSignalUseCase,
     private val resetBpmMeasurementUseCase: ResetBpmMeasurementUseCase,
     private val aggregator: MeasurementAggregator
 ) : ViewModel() {
@@ -67,15 +70,21 @@ class BpmViewModel @Inject constructor(
 
     fun processFrame(buffer: ByteArray) {
         viewModelScope.launch {
-            val analysis = bpmMeasurementUseCase(buffer)
-            _progress.value = analysis.progress
 
-            when (val result = analysis.result) {
+            val ppgCollector = collectPpgSignalUseCase(buffer)
+            val bpm = computeBpmUseCase(
+                ppgCollector.values,
+                ppgCollector.timestamps,
+                ppgCollector.progress,
+            )
+            _progress.value = bpm.progress
+
+            when (val result = bpm.result) {
                 is MeasurementResult.Success -> {
                     _state.value = _state.value.copy(
                         isMeasuring = false,
                         isMeasured = true,
-                        value = result.value.toString(),
+                        value = String.format(Locale.US, "%.2f", result.value),
                         status = if (result.value < 60) "low"
                         else if (result.value > 100) "high"
                         else "normal",

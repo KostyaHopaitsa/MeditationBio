@@ -1,6 +1,6 @@
 package com.example.meditationbiorefactoring.feature_bio.domain.use_case
 
-import com.example.meditationbiorefactoring.feature_bio.domain.util.StressData
+import com.example.meditationbiorefactoring.feature_bio.domain.model.StressData
 import javax.inject.Inject
 
 class ComputeOverallStressUseCase @Inject constructor() {
