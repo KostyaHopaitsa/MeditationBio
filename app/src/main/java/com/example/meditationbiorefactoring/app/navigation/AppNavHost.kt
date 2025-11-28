@@ -9,11 +9,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.meditationbiorefactoring.app.presentation.HomeScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.bio_history.BioHistoryScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.bpm.BpmScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.brpm.BrpmScreen
-import com.example.meditationbiorefactoring.feature_bio.presentation.measurement.siv.SivScreen
-import com.example.meditationbiorefactoring.feature_music.presentation.MusicScreen
+import com.example.meditationbiorefactoring.bio.presentation.bio_history.BioHistoryScreen
+import com.example.meditationbiorefactoring.bio.presentation.measurement.bpm.BpmScreen
+import com.example.meditationbiorefactoring.bio.presentation.measurement.brpm.BrpmScreen
+import com.example.meditationbiorefactoring.bio.presentation.measurement.siv.SivScreen
+import com.example.meditationbiorefactoring.music.presentation.MusicScreen
 
 @Composable
 fun AppNavHost(navController: NavHostController = rememberNavController()) {

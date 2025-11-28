@@ -4,32 +4,33 @@ import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.example.meditationbiorefactoring.common.Constants
-import com.example.meditationbiorefactoring.feature_bio.data.local.MeasurementDatabase
-import com.example.meditationbiorefactoring.feature_bio.data.repository.BpmRepositoryImpl
-import com.example.meditationbiorefactoring.feature_bio.data.repository.BrpmRepositoryImpl
-import com.example.meditationbiorefactoring.feature_bio.data.repository.MeasurementRepositoryImpl
-import com.example.meditationbiorefactoring.feature_bio.data.repository.SivRepositoryImpl
-import com.example.meditationbiorefactoring.feature_bio.domain.repository.BpmRepository
-import com.example.meditationbiorefactoring.feature_bio.domain.repository.BrpmRepository
-import com.example.meditationbiorefactoring.feature_bio.domain.repository.MeasurementRepository
-import com.example.meditationbiorefactoring.feature_bio.domain.repository.SivRepository
-import com.example.meditationbiorefactoring.feature_bio.data.analyzer.BreathAnalyzerCore
-import com.example.meditationbiorefactoring.feature_bio.data.analyzer.PpgAnalyzerCore
-import com.example.meditationbiorefactoring.feature_bio.data.analyzer.SivAnalyzerCore
-import com.example.meditationbiorefactoring.feature_music.data.remote.JamendoApi
-import com.example.meditationbiorefactoring.feature_music.data.repository.MusicPlayerRepositoryImpl
-import com.example.meditationbiorefactoring.feature_music.data.repository.TrackRepositoryImpl
-import com.example.meditationbiorefactoring.feature_music.domain.repository.MusicPlayerRepository
-import com.example.meditationbiorefactoring.feature_music.domain.repository.TrackRepository
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.GetCurrentPositionUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.GetDurationUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.IsPlayingUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.PauseUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.PlayUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.PlayerUseCases
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.ResumeUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.SeekToUseCase
-import com.example.meditationbiorefactoring.feature_music.domain.use_case.StopUseCase
+import com.example.meditationbiorefactoring.bio.data.local.MeasurementDatabase
+import com.example.meditationbiorefactoring.bio.data.repository.BpmRepositoryImpl
+import com.example.meditationbiorefactoring.bio.data.repository.BrpmRepositoryImpl
+import com.example.meditationbiorefactoring.bio.data.repository.MeasurementRepositoryImpl
+import com.example.meditationbiorefactoring.bio.data.repository.SivRepositoryImpl
+import com.example.meditationbiorefactoring.bio.domain.repository.BpmRepository
+import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
+import com.example.meditationbiorefactoring.bio.domain.repository.MeasurementRepository
+import com.example.meditationbiorefactoring.bio.domain.repository.SivRepository
+import com.example.meditationbiorefactoring.bio.data.analyzer.BreathAnalyzerCore
+import com.example.meditationbiorefactoring.bio.data.analyzer.PpgAnalyzerCore
+import com.example.meditationbiorefactoring.bio.data.analyzer.SivAnalyzerCore
+import com.example.meditationbiorefactoring.music.data.remote.JamendoApi
+import com.example.meditationbiorefactoring.music.data.repository.MusicPlayerRepositoryImpl
+import com.example.meditationbiorefactoring.music.data.repository.TrackRepositoryImpl
+import com.example.meditationbiorefactoring.music.domain.repository.MusicPlayerRepository
+import com.example.meditationbiorefactoring.music.domain.repository.TrackRepository
+import com.example.meditationbiorefactoring.music.domain.use_case.GetCurrentPositionUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.GetDurationUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.IsPlayingUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.PauseUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.PlayUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.PlayerUseCases
+import com.example.meditationbiorefactoring.music.domain.use_case.ReleasePlayerUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.ResumeUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.SeekToUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.StopUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -124,7 +125,8 @@ object AppModule {
             getDurationUseCase = GetDurationUseCase(repository),
             isPlayingUseCase = IsPlayingUseCase(repository),
             seekToUseCase = SeekToUseCase(repository),
-            stopUseCase = StopUseCase(repository)
+            stopUseCase = StopUseCase(repository),
+            releasePlayerUseCase = ReleasePlayerUseCase(repository)
         )
     }
 }
