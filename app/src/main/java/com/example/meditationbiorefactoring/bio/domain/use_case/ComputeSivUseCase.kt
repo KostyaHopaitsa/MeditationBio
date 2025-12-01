@@ -14,7 +14,7 @@ class ComputeSivUseCase @Inject constructor(
     ): MeasurementAnalysis {
         return if (length > 0 || buffer.isNotEmpty()) {
             val siv = sivAnalyzerCore.computeSiv(buffer, length)
-            if (siv in 0.005..0.15) {
+            if (siv in 0.01..0.15) {
                 MeasurementAnalysis(MeasurementResult.Success(siv))
             } else {
                 MeasurementAnalysis(MeasurementResult.Invalid(siv))

@@ -1,19 +1,19 @@
 package com.example.meditationbiorefactoring.bio.domain.use_case
 
+import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementAnalysis
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
 import javax.inject.Inject
 
 class ComputeBrpmUseCase @Inject constructor(
-    private val repository: BrpmRepository
+    private val breathAnalyzerCore: BreathAnalyzerCore
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         zValues: List<Double>,
         progress: Float
     ): MeasurementAnalysis {
         return if (progress >= 1f) {
-            val brpm = repository.computeBrpm(zValues)
+            val brpm = breathAnalyzerCore.computeBrpm(zValues)
             if (brpm in 5f..40f) {
                 MeasurementAnalysis(MeasurementResult.Success(brpm), progress)
             } else {

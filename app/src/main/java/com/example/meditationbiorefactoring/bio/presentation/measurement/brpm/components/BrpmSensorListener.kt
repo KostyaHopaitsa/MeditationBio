@@ -28,7 +28,6 @@ fun BrpmSensorListener(
                 val z = event.values[2]
                 data(z.toDouble())
             }
-
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
 

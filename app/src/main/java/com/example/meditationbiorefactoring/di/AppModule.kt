@@ -6,9 +6,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.meditationbiorefactoring.common.Constants
 import com.example.meditationbiorefactoring.bio.data.local.MeasurementDatabase
-import com.example.meditationbiorefactoring.bio.data.repository.BrpmRepositoryImpl
 import com.example.meditationbiorefactoring.bio.data.repository.MeasurementRepositoryImpl
-import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
 import com.example.meditationbiorefactoring.bio.domain.repository.MeasurementRepository
 import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.core.PpgAnalyzerCore
@@ -58,12 +56,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSivAnalyzer(): SivAnalyzerCore = SivAnalyzerCore()
-
-    @Provides
-    @Singleton
-    fun provideBrpmRepository(analyzer: BreathAnalyzerCore): BrpmRepository {
-        return BrpmRepositoryImpl(analyzer)
-    }
 
     @Provides
     @Singleton

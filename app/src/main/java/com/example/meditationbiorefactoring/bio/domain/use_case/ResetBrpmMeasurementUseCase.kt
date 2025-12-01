@@ -1,12 +1,12 @@
 package com.example.meditationbiorefactoring.bio.domain.use_case
 
-import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
+import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
 import javax.inject.Inject
 
 class ResetBrpmMeasurementUseCase @Inject constructor(
-    private val repository: BrpmRepository
+    private val breathAnalyzerCore: BreathAnalyzerCore
 ) {
-    suspend operator fun invoke() {
-        repository.reset()
+    operator fun invoke() {
+        breathAnalyzerCore.reset()
     }
 }
