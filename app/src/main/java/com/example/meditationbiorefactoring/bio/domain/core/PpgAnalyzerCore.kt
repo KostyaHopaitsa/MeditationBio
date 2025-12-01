@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.bio.data.analyzer
+package com.example.meditationbiorefactoring.bio.domain.core
 
 import com.example.meditationbiorefactoring.bio.domain.model.PpgSignalResult
 import com.example.meditationbiorefactoring.bio.domain.util.SignalProcessing
@@ -24,11 +24,6 @@ class PpgAnalyzerCore @Inject constructor() {
         val progress = values.size / maxBufferSize.toFloat()
 
         return PpgSignalResult(values, timestamps, progress)
-    }
-
-    fun reset() {
-        values.clear()
-        timestamps.clear()
     }
 
     fun computeBpm(signal: List<Double>, times: List<Long>): Double {
@@ -60,5 +55,10 @@ class PpgAnalyzerCore @Inject constructor() {
         val durationSec = (times.last() - times.first()) / 1000.0
         val bpm = (peaks * 60 / durationSec)
         return bpm
+    }
+
+    fun reset() {
+        values.clear()
+        timestamps.clear()
     }
 }

@@ -68,7 +68,7 @@ class BpmViewModel @Inject constructor(
         }
     }
 
-    fun processFrame(buffer: ByteArray) {
+    private fun processFrame(buffer: ByteArray) {
         viewModelScope.launch {
 
             val ppgCollector = collectPpgSignalUseCase(buffer)

@@ -1,7 +1,6 @@
 package com.example.meditationbiorefactoring.music.presentation
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +56,6 @@ class MusicViewModel @Inject constructor(
             is MusicEvent.Pause -> {
                 playerUseCases.pauseUseCase()
                 _state.value = _state.value.copy(isPlaying = playerUseCases.isPlayingUseCase())
-//                stopObservingProgress()
             }
             is MusicEvent.Resume -> {
                 playerUseCases.resumeUseCase()

@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun BrpmSensorListener(
-    onData: (Double) -> Unit
+    data: (Double) -> Unit
 ) {
     val context = LocalContext.current
     val sensorManager = remember {
@@ -26,7 +26,7 @@ fun BrpmSensorListener(
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
                 val z = event.values[2]
-                onData(z.toDouble())
+                data(z.toDouble())
             }
 
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

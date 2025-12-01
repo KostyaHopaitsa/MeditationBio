@@ -3,11 +3,8 @@ package com.example.meditationbiorefactoring.bio.presentation.measurement.siv
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeSivUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.GetRawSivDataUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.ResetSivMeasurementUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.StartSivRecordingUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.StopSivUseCase
+import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
+import com.example.meditationbiorefactoring.bio.domain.use_case.AudioCoreUseCases
 import com.example.meditationbiorefactoring.bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.bio.presentation.measurement.MeasurementAggregator
 import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
@@ -22,12 +19,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SivViewModel @Inject constructor(
-    private val startSivRecordingUseCase: StartSivRecordingUseCase,
-    private val stopSivUseCase: StopSivUseCase,
-    private val getRawSivDataUseCase: GetRawSivDataUseCase,
-    private val computeSivUseCase: ComputeSivUseCase,
-    private val resetSivMeasurementUseCase: ResetSivMeasurementUseCase,
+    private val audioRecorder: AudioRecorder,
+    private val audioCoreUseCases: AudioCoreUseCases,
     private val aggregator: MeasurementAggregator,
+
 ): ViewModel() {
 
     private val _state = MutableStateFlow(SivState())
@@ -40,46 +35,50 @@ class SivViewModel @Inject constructor(
         when (event) {
             is SivEvent.Start -> {
                 viewModelScope.launch {
-                    startSivRecordingUseCase()
+                    audioRecorder.start { chunk ->
+                        audioCoreUseCases.addChunkUseCase(chunk)
+                    }
                     _state.value = _state.value.copy(isMeasuring = true)
                 }
             }
             is SivEvent.Stop -> {
                 viewModelScope.launch {
-                    stopSivUseCase()
-                    val rawDat = getRawSivDataUseCase()
-                    val analysis = computeSivUseCase(rawDat.buffer, rawDat.currentIndex)
-                    when (val result = analysis.result) {
-                        is MeasurementResult.Success -> {
-                            _state.value = _state.value.copy(
-                                isMeasuring = false,
-                                isMeasured = true,
-                                value = String.format(Locale.US, "%.3f", result.value),
-                                status = if (result.value < 0.03) "low"
-                                else if (result.value > 0.09) "high"
-                                else "normal",
-                            )
-                            aggregator.updateMeasurement(BioParamType.siv, result.value)
-                            aggregator.computeOverallStress()
-                        }
-                        is MeasurementResult.Invalid -> {
-                            _state.value = _state.value.copy(
-                                isMeasuring = false,
-                                error = ErrorType.MeasureError
-                            )
-                        }
-                        is MeasurementResult.Error -> {
-                            _state.value = _state.value.copy(
-                                error = ErrorType.UnknownError
-                            )
-                        }
+                    audioRecorder.stop()
+                }
+                val buffer = audioCoreUseCases.buildAudioBufferUseCase()
+                val analysis = audioCoreUseCases.computeSivUseCase(buffer, buffer.size)
+                when (val result = analysis.result) {
+                    is MeasurementResult.Success -> {
+                        _state.value = _state.value.copy(
+                            isMeasuring = false,
+                            isMeasured = true,
+                            value = String.format(Locale.US, "%.3f", result.value),
+                            status = if (result.value < 0.03) "low"
+                            else if (result.value > 0.09) "high"
+                            else "normal",
+                        )
+                        aggregator.updateMeasurement(BioParamType.siv, result.value)
+                        aggregator.computeOverallStress()
+                    }
+
+                    is MeasurementResult.Invalid -> {
+                        _state.value = _state.value.copy(
+                            isMeasuring = false,
+                            error = ErrorType.MeasureError
+                        )
+                    }
+
+                    is MeasurementResult.Error -> {
+                        _state.value = _state.value.copy(
+                            error = ErrorType.UnknownError
+                        )
                     }
                 }
             }
             SivEvent.Reset -> {
                 _state.value = SivState()
                 viewModelScope.launch {
-                    resetSivMeasurementUseCase()
+                    audioCoreUseCases.resetSivMeasurementUseCase()
                 }
             }
             is SivEvent.NavigateClick -> {

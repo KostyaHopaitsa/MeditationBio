@@ -1,6 +1,5 @@
 package com.example.meditationbiorefactoring.bio.presentation.measurement.bpm
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.meditationbiorefactoring.bio.data.controller.CameraController
 import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementStart
@@ -37,7 +37,7 @@ fun BpmScreen(
 
     val cameraController = remember {
         CameraController(context, lifecycleOwner) { buffer ->
-            viewModel.processFrame(buffer)
+            viewModel.onEvent(BpmEvent.FrameCaptured(buffer))
         }
     }
 

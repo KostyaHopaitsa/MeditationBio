@@ -1,7 +1,7 @@
 package com.example.meditationbiorefactoring.bio.data.repository
 
 import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
-import com.example.meditationbiorefactoring.bio.data.analyzer.BreathAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
 import javax.inject.Inject
 

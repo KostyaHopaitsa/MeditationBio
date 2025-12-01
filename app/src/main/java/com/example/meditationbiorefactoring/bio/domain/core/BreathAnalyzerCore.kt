@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.bio.data.analyzer
+package com.example.meditationbiorefactoring.bio.domain.core
 
 import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
 import com.example.meditationbiorefactoring.bio.domain.util.SignalProcessing

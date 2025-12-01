@@ -1,5 +1,6 @@
 package com.example.meditationbiorefactoring.di
 
+import AudioRecorderController
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
@@ -8,14 +9,18 @@ import com.example.meditationbiorefactoring.bio.data.local.MeasurementDatabase
 import com.example.meditationbiorefactoring.bio.data.repository.BpmRepositoryImpl
 import com.example.meditationbiorefactoring.bio.data.repository.BrpmRepositoryImpl
 import com.example.meditationbiorefactoring.bio.data.repository.MeasurementRepositoryImpl
-import com.example.meditationbiorefactoring.bio.data.repository.SivRepositoryImpl
 import com.example.meditationbiorefactoring.bio.domain.repository.BpmRepository
 import com.example.meditationbiorefactoring.bio.domain.repository.BrpmRepository
 import com.example.meditationbiorefactoring.bio.domain.repository.MeasurementRepository
-import com.example.meditationbiorefactoring.bio.domain.repository.SivRepository
-import com.example.meditationbiorefactoring.bio.data.analyzer.BreathAnalyzerCore
-import com.example.meditationbiorefactoring.bio.data.analyzer.PpgAnalyzerCore
-import com.example.meditationbiorefactoring.bio.data.analyzer.SivAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.core.PpgAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.core.SivAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
+import com.example.meditationbiorefactoring.bio.domain.use_case.AddChunkUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.AudioCoreUseCases
+import com.example.meditationbiorefactoring.bio.domain.use_case.BuildAudioBufferUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeSivUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.ResetSivMeasurementUseCase
 import com.example.meditationbiorefactoring.music.data.remote.JamendoApi
 import com.example.meditationbiorefactoring.music.data.repository.MusicPlayerRepositoryImpl
 import com.example.meditationbiorefactoring.music.data.repository.TrackRepositoryImpl
@@ -70,9 +75,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSivRepository(analyzer: SivAnalyzerCore): SivRepository {
-        return SivRepositoryImpl(analyzer)
-    }
+    fun provideAudioRecorder(): AudioRecorder = AudioRecorderController()
 
     @Provides
     @Singleton
@@ -127,6 +130,17 @@ object AppModule {
             seekToUseCase = SeekToUseCase(repository),
             stopUseCase = StopUseCase(repository),
             releasePlayerUseCase = ReleasePlayerUseCase(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioCoreUseCase(core: SivAnalyzerCore): AudioCoreUseCases {
+        return AudioCoreUseCases(
+            addChunkUseCase = AddChunkUseCase(core),
+            buildAudioBufferUseCase = BuildAudioBufferUseCase(core),
+            computeSivUseCase = ComputeSivUseCase(core),
+            resetSivMeasurementUseCase = ResetSivMeasurementUseCase(core)
         )
     }
 }

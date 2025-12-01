@@ -8,7 +8,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.meditationbiorefactoring.bio.presentation.measurement.bpm.CameraController
+import com.example.meditationbiorefactoring.bio.data.controller.CameraController
 
 @Composable
 fun CameraPreview(
