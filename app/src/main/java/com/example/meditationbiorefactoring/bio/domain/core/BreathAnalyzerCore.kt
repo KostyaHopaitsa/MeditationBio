@@ -17,7 +17,7 @@ class BreathAnalyzerCore @Inject constructor() {
 
         val progress = zValues.size.toFloat() / bufferSize.toFloat()
 
-        return ZSignalResult(zValues, progress)
+        return ZSignalResult(zValues.toList(), progress)
     }
 
     fun computeBrpm(values: List<Double>): Double {

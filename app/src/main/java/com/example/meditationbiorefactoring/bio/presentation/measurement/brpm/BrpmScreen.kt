@@ -47,9 +47,6 @@ fun BrpmScreen(
                 CircularProgressIndicator()
             }
             state.isMeasuring -> {
-                BrpmSensorListener { z ->
-                    viewModel.onEvent(BrpmEvent.DataCaptured(z))
-                }
                 LinearProgressIndicator(
                     progress = { progress },
                     modifier = Modifier

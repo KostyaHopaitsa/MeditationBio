@@ -4,6 +4,7 @@ import AudioRecorderController
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.example.meditationbiorefactoring.bio.data.controller.AccelerometerController
 import com.example.meditationbiorefactoring.common.Constants
 import com.example.meditationbiorefactoring.bio.data.local.MeasurementDatabase
 import com.example.meditationbiorefactoring.bio.data.repository.MeasurementRepositoryImpl
@@ -11,6 +12,7 @@ import com.example.meditationbiorefactoring.bio.domain.repository.MeasurementRep
 import com.example.meditationbiorefactoring.bio.domain.core.BreathAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.core.PpgAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.core.SivAnalyzerCore
+import com.example.meditationbiorefactoring.bio.domain.sensors.Accelerometer
 import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
 import com.example.meditationbiorefactoring.bio.domain.use_case.AddChunkUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.AudioCoreUseCases
@@ -60,6 +62,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAudioRecorder(): AudioRecorder = AudioRecorderController()
+
+    @Provides
+    @Singleton
+    fun provideAccelerometer(
+        @ApplicationContext context: Context
+    ): Accelerometer = AccelerometerController(
+        context
+    )
 
     @Provides
     @Singleton

@@ -3,6 +3,8 @@ package com.example.meditationbiorefactoring.bio.presentation.measurement.brpm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
+import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
+import com.example.meditationbiorefactoring.bio.domain.sensors.Accelerometer
 import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeBrpmUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.ResetBrpmMeasurementUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.CollectZValuesUseCase
@@ -23,6 +25,7 @@ class BrpmViewModel @Inject constructor(
     private val computeBrpmUseCase: ComputeBrpmUseCase,
     private val collectZValuesUseCase: CollectZValuesUseCase,
     private val resetBrpmMeasurementUseCase: ResetBrpmMeasurementUseCase,
+    private val accelerometer: Accelerometer,
     private val aggregator: MeasurementAggregator
 ): ViewModel() {
 
@@ -42,6 +45,10 @@ class BrpmViewModel @Inject constructor(
                     isMeasuring = true,
                     isLoading = false,
                 )
+                accelerometer.start { values ->
+                    val zSignalResult = collectZValuesUseCase(values[2].toDouble())
+                    onEvent(BrpmEvent.DataCaptured(zSignalResult))
+                }
             }
             is BrpmEvent.DataCaptured -> {
                 processFrame(event.z)
@@ -51,7 +58,6 @@ class BrpmViewModel @Inject constructor(
                     _navigateEvent.send(Unit)
                 }
             }
-
             BrpmEvent.Reset -> {
                 _progress.value = 0f
                 _state.value = BrpmState()
@@ -62,35 +68,35 @@ class BrpmViewModel @Inject constructor(
         }
     }
 
-    private fun processFrame(z: Double) {
-        viewModelScope.launch {
-            val zValuesCollector = collectZValuesUseCase(z)
-            val brpm = computeBrpmUseCase(zValuesCollector.values,zValuesCollector.progress)
-            _progress.value = brpm.progress
+    private fun processFrame(z: ZSignalResult) {
+        if (z.progress >= 1f) accelerometer.stop()
+        val brpm = computeBrpmUseCase(z.values, z.progress)
+        _progress.value = brpm.progress
 
-            when (val result = brpm.result) {
-                is MeasurementResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isMeasuring = false,
-                        isMeasured = true,
-                        value = String.format(Locale.US, "%.2f", result.value),
-                        status = if (result.value < 12) "low"
-                        else if (result.value > 25) "high"
-                        else "normal",
-                    )
-                    aggregator.updateMeasurement(BioParamType.brpm, result.value)
-                }
-                is MeasurementResult.Invalid -> {
-                    _state.value = _state.value.copy(
-                        isMeasuring = false,
-                        error = ErrorType.MeasureError,
-                    )
-                }
-                is MeasurementResult.Error -> {
-                    _state.value = _state.value.copy(
-                        error = ErrorType.UnknownError,
-                    )
-                }
+        when (val result = brpm.result) {
+            is MeasurementResult.Success -> {
+                _state.value = _state.value.copy(
+                    isMeasuring = false,
+                    isMeasured = true,
+                    value = String.format(Locale.US, "%.2f", result.value),
+                    status = if (result.value < 12) "low"
+                    else if (result.value > 25) "high"
+                    else "normal",
+                )
+                aggregator.updateMeasurement(BioParamType.brpm, result.value)
+            }
+
+            is MeasurementResult.Invalid -> {
+                _state.value = _state.value.copy(
+                    isMeasuring = false,
+                    error = ErrorType.MeasureError,
+                )
+            }
+
+            is MeasurementResult.Error -> {
+                _state.value = _state.value.copy(
+                    error = ErrorType.UnknownError,
+                )
             }
         }
     }
