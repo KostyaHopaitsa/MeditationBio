@@ -1,13 +1,13 @@
 package com.example.meditationbiorefactoring.bio.domain.use_case
 
+import com.example.meditationbiorefactoring.bio.domain.core.PpgAnalyzerCore
 import com.example.meditationbiorefactoring.bio.domain.model.PpgSignalResult
-import com.example.meditationbiorefactoring.bio.domain.repository.BpmRepository
 import javax.inject.Inject
 
 class CollectPpgSignalUseCase @Inject constructor(
-    private val repository: BpmRepository
+    private val ppgAnalyzerCore: PpgAnalyzerCore
 ) {
-    suspend operator fun invoke(buffer: ByteArray): PpgSignalResult {
-        return repository.collectPpgSignal(buffer)
+    operator fun invoke(buffer: ByteArray): PpgSignalResult {
+        return ppgAnalyzerCore.collectPpgSignal(buffer)
     }
 }
