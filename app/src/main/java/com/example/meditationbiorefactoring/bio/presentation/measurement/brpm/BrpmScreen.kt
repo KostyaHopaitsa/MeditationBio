@@ -19,7 +19,6 @@ import com.example.meditationbiorefactoring.bio.presentation.measurement.util.Er
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementResult
-import com.example.meditationbiorefactoring.bio.presentation.measurement.brpm.components.BrpmSensorListener
 
 @Composable
 fun BrpmScreen(
