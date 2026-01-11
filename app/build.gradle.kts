@@ -91,10 +91,10 @@ dependencies {
     implementation ("androidx.camera:camera-core:1.2.3")
     implementation ("androidx.camera:camera-camera2:1.2.3")
 
-    // Для PreviewView у Compose
+    // PreviewView in Compose
     implementation ("androidx.camera:camera-view:1.2.3")
 
-    // Для ImageAnalysis
+    // ImageAnalysis
     implementation ("androidx.camera:camera-lifecycle:1.2.3")
 
     //Coil

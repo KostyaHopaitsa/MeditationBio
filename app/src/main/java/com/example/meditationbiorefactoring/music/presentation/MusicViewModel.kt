@@ -8,13 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.Coil
 import coil.request.CachePolicy
-import com.example.meditationbiorefactoring.bio.domain.use_case.GetMeasurementByIdUseCase
 import com.example.meditationbiorefactoring.music.domain.model.Track
 import com.example.meditationbiorefactoring.music.domain.use_case.GetTagByStressLevelUseCase
 import com.example.meditationbiorefactoring.music.domain.use_case.GetTracksByTagUseCase
 import com.example.meditationbiorefactoring.music.domain.use_case.PlayerUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -24,12 +22,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import coil.request.ImageRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val getTracksByTagUseCase: GetTracksByTagUseCase,
     private val playerUseCases: PlayerUseCases,
-    private val getMeasurementByIdUseCase: GetMeasurementByIdUseCase,
     private val getTagByStressLevelUseCase: GetTagByStressLevelUseCase
 ): ViewModel() {
     private val _state = mutableStateOf(MusicState())
@@ -107,16 +106,11 @@ class MusicViewModel @Inject constructor(
         progressJob = null
     }
 
-    fun loadMusic(stressLevel: String?, measurementId: Int?) {
+    fun loadMusic(stressLevel: String?) {
         viewModelScope.launch {
-            val tag = when {
-                measurementId != null -> {
-                    val measurement = getMeasurementByIdUseCase(measurementId)
-                    getTagByStressLevelUseCase(measurement?.stress)
-                }
-                stressLevel != null -> getTagByStressLevelUseCase(stressLevel)
-                else -> "ambient+downtempo+calm"
-            }
+            val tag =
+                if (stressLevel != null) getTagByStressLevelUseCase(stressLevel)
+                else "ambient+downtempo+calm"
             loadTracks(tag)
         }
     }
@@ -143,24 +137,19 @@ class MusicViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun preloadImages(context: Context, tracks: List<Track>) {
+    fun preloadImages(tracks: List<Track>) {
         val imageLoader = Coil.imageLoader(context)
-        viewModelScope.launch(Dispatchers.IO) {
-            tracks.chunked(10).forEach { batch ->
-                batch.forEach { track ->
-                    track.imageUrl?.let { url ->
-                        imageLoader.enqueue(
-                            ImageRequest.Builder(context)
-                                .data(url)
-                                .size(300)
-                                .diskCachePolicy(CachePolicy.ENABLED)
-                                .memoryCachePolicy(CachePolicy.ENABLED)
-                                .allowHardware(false)
-                                .build()
-                        )
-                    }
-                }
-                delay(300)
+        tracks.forEach { track ->
+            track.imageUrl?.let { url ->
+                imageLoader.enqueue(
+                    ImageRequest.Builder(context)
+                        .data(url)
+                        .size(300)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .allowHardware(true)
+                        .build()
+                )
             }
         }
     }

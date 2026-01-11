@@ -49,9 +49,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         }
         composable(route = Screen.BioHistoryScreen.route) {
             BioHistoryScreen(
-                onNavigateToMusic = { measurementId ->
+                onNavigateToMusic = { stressLevel ->
                     navController.navigate(
-                        Screen.MusicScreen.createRoute(measurementId = measurementId)
+                        Screen.MusicScreen.createRoute(stressLevel = stressLevel)
                     )
                 }
             )
@@ -61,25 +61,20 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 navArgument("stressLevel") {
                     type = NavType.StringType
                     defaultValue = "none"
-                },
-                navArgument("measurementId") {
-                    type = NavType.IntType
-                    defaultValue = 0
                 }
             )
         ) { backStackEntry ->
             val stressLevel = backStackEntry.arguments?.getString("stressLevel")
-            val measurementId = backStackEntry.arguments?.getInt("measurementId")
 
             MusicScreen(
                 stressLevel = if (stressLevel == "none") null else stressLevel,
-                measurementId = if (measurementId == 0) null else measurementId
             )
 
             BackHandler {
-                navController.navigate(Screen.HomeScreen.route) {
-                    popUpTo(Screen.HomeScreen.route) { inclusive = false }
-                }
+                navController.popBackStack(
+                    route = Screen.HomeScreen.route,
+                    inclusive = false
+                )
             }
         }
     }
