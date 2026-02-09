@@ -9,16 +9,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class MusicPlayerRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) : MusicPlayerRepository {
 
     private var player: ExoPlayer? = null
 
     private fun getOrCreatePlayer(): ExoPlayer {
-        if (player == null) {
-            player = ExoPlayer.Builder(context).build()
-        }
-        return player!!
+        return player ?: ExoPlayer.Builder(context).build().also { player = it }
     }
 
     override fun play(url: String) {

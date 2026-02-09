@@ -1,10 +1,10 @@
 package com.example.meditationbiorefactoring.di
 
-import AudioRecorderController
+import AudioObserverImpl
 import android.content.Context
-import com.example.meditationbiorefactoring.bio.data.controller.AccelerometerController
-import com.example.meditationbiorefactoring.bio.domain.sensors.Accelerometer
-import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
+import com.example.meditationbiorefactoring.bio.data.Observer.AccelerometerObserverImpl
+import com.example.meditationbiorefactoring.bio.domain.observer.AccelerometerObserver
+import com.example.meditationbiorefactoring.bio.domain.observer.AudioObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,11 +18,12 @@ object SensorsModule {
 
     @Provides
     @Singleton
-    fun provideAudioRecorder(): AudioRecorder = AudioRecorderController()
+    fun provideAudioObserver(): AudioObserver = AudioObserverImpl()
 
     @Provides
     @Singleton
-    fun provideAccelerometer(
+    fun provideAccelerometerObserver(
         @ApplicationContext context: Context
-    ): Accelerometer = AccelerometerController(context)
+    ): AccelerometerObserver = AccelerometerObserverImpl(context)
+
 }

@@ -1,15 +1,15 @@
-package com.example.meditationbiorefactoring.bio.data.controller
+package com.example.meditationbiorefactoring.bio.data.Observer
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import com.example.meditationbiorefactoring.bio.domain.sensors.Accelerometer
+import com.example.meditationbiorefactoring.bio.domain.observer.AccelerometerObserver
 
-class AccelerometerController(
-    private val context: Context
-) : Accelerometer {
+class AccelerometerObserverImpl(
+    context: Context
+) : AccelerometerObserver {
 
     private val sensorManager =
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager

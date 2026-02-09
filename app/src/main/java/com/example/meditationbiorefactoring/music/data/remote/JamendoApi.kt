@@ -6,7 +6,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface JamendoApi {
-
     @GET("tracks")
     suspend fun getTracksByTag(
         @Query("client_id") clientId: String = Constants.CLIENT_ID,

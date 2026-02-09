@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
 import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
-import com.example.meditationbiorefactoring.bio.domain.sensors.Accelerometer
+import com.example.meditationbiorefactoring.bio.domain.observer.AccelerometerObserver
 import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeBrpmUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.ResetBrpmMeasurementUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.CollectZValuesUseCase
@@ -25,7 +25,7 @@ class BrpmViewModel @Inject constructor(
     private val computeBrpmUseCase: ComputeBrpmUseCase,
     private val collectZValuesUseCase: CollectZValuesUseCase,
     private val resetBrpmMeasurementUseCase: ResetBrpmMeasurementUseCase,
-    private val accelerometer: Accelerometer,
+    private val accelerometer: AccelerometerObserver,
     private val aggregator: MeasurementAggregator
 ): ViewModel() {
 

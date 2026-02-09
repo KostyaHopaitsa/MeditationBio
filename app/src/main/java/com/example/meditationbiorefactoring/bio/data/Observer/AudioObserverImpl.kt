@@ -1,14 +1,14 @@
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
+import com.example.meditationbiorefactoring.bio.domain.observer.AudioObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class AudioRecorderController : AudioRecorder {
+class AudioObserverImpl : AudioObserver {
 
     private val sampleRate = 16000
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -48,7 +48,7 @@ class AudioRecorderController : AudioRecorder {
                 }
             }
 
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             return
         }
     }

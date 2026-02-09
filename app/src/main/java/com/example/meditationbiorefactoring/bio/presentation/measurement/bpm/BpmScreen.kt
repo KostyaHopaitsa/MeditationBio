@@ -1,5 +1,6 @@
 package com.example.meditationbiorefactoring.bio.presentation.measurement.bpm
 
+import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,13 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.meditationbiorefactoring.bio.data.controller.CameraController
 import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
 import com.example.meditationbiorefactoring.common.presentation.components.Error
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementResult
 import com.example.meditationbiorefactoring.bio.presentation.measurement.bpm.components.CameraPreview
 
+@ExperimentalGetImage
 @Composable
 fun BpmScreen(
     onNavigateToBrpm: () -> Unit,
@@ -32,14 +33,6 @@ fun BpmScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val progress by viewModel.progress.collectAsState()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
-
-    val cameraController = remember {
-        CameraController(context, lifecycleOwner) { buffer ->
-            viewModel.onEvent(BpmEvent.FrameCaptured(buffer))
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect {
@@ -59,7 +52,9 @@ fun BpmScreen(
             }
             state.isMeasuring -> {
                 CameraPreview(
-                    cameraController,
+                    onFrame = { buffer ->
+                        viewModel.onEvent(BpmEvent.FrameCaptured(buffer))
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
                 LinearProgressIndicator(

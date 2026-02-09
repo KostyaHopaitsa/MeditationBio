@@ -3,7 +3,7 @@ package com.example.meditationbiorefactoring.bio.presentation.measurement.siv
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.bio.domain.sensors.AudioRecorder
+import com.example.meditationbiorefactoring.bio.domain.observer.AudioObserver
 import com.example.meditationbiorefactoring.bio.domain.use_case.AudioCoreUseCases
 import com.example.meditationbiorefactoring.bio.domain.util.BioParamType
 import com.example.meditationbiorefactoring.bio.presentation.measurement.MeasurementAggregator
@@ -19,11 +19,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SivViewModel @Inject constructor(
-    private val audioRecorder: AudioRecorder,
+    private val audioRecorder: AudioObserver,
     private val audioCoreUseCases: AudioCoreUseCases,
     private val aggregator: MeasurementAggregator,
 
-): ViewModel() {
+    ): ViewModel() {
 
     private val _state = MutableStateFlow(SivState())
     val state: StateFlow<SivState> = _state

@@ -24,7 +24,7 @@ class BpmViewModel @Inject constructor(
     private val computeBpmUseCase: ComputeBpmUseCase,
     private val collectPpgSignalUseCase: CollectPpgSignalUseCase,
     private val resetBpmMeasurementUseCase: ResetBpmMeasurementUseCase,
-    private val aggregator: MeasurementAggregator
+    private val aggregator: MeasurementAggregator,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(BpmState())
@@ -32,7 +32,6 @@ class BpmViewModel @Inject constructor(
 
     private val _progress = MutableStateFlow(0f)
     val progress: StateFlow<Float> = _progress
-
     private val _navigateEvent = Channel<Unit>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
 
