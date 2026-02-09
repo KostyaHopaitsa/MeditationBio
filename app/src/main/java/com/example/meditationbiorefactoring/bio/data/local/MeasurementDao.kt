@@ -1,6 +1,7 @@
 package com.example.meditationbiorefactoring.bio.data.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -19,6 +20,6 @@ interface MeasurementDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMeasurement(measurement: Measurement)
 
-//    @Delete
-//    suspend fun deleteMeasurement(measurement: Measurement)
+    @Delete
+    suspend fun deleteMeasurement(measurement: Measurement)
 }

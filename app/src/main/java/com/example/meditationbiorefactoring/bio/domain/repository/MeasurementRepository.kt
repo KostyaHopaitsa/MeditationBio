@@ -11,5 +11,5 @@ interface MeasurementRepository {
 
     suspend fun insertMeasurement(measurement: Measurement)
 
-    //suspend fun deleteMeasurement(measurement: Measurement)
+    suspend fun deleteMeasurement(measurement: Measurement)
 }

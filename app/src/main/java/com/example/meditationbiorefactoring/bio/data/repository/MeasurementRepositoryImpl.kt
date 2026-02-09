@@ -21,8 +21,8 @@ class MeasurementRepositoryImpl @Inject constructor(
         dao.insertMeasurement(measurement)
     }
 
-//    override suspend fun deleteMeasurement(measurement: Measurement) {
-//        dao.deleteMeasurement(measurement)
-//    }
+    override suspend fun deleteMeasurement(measurement: Measurement) {
+        dao.deleteMeasurement(measurement)
+    }
 
 }

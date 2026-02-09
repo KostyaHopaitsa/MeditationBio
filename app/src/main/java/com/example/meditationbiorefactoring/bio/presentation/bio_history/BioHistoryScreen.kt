@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,7 +20,13 @@ fun BioHistoryScreen(
     onNavigateToMusic: (String) -> Unit,
     viewModel: BioHistoryViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateEvent.collect {
+            onNavigateToMusic
+        }
+    }
 
     when {
         state.isLoading -> {
@@ -39,7 +48,12 @@ fun BioHistoryScreen(
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(state.measurements) { measurement ->
                     MeasureItem(
-                        onNavigateTo = { onNavigateToMusic(measurement.stress) },
+                        onNavigateTo = { viewModel.onEvent(
+                            BioHistoryEvent.NavigateClick(measurement.stress)
+                        ) },
+                        onDelete = { viewModel.onEvent(
+                            BioHistoryEvent.Delete(measurement)
+                        ) },
                         measurement = measurement
                     )
                 }

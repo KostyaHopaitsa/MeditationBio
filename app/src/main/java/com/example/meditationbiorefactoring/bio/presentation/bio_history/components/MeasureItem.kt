@@ -5,11 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import com.example.meditationbiorefactoring.bio.presentation.util.toReadableDate
 @Composable
 fun MeasureItem(
     onNavigateTo: () -> Unit,
+    onDelete: () -> Unit,
     measurement: Measurement
 ) {
     Row(
@@ -50,12 +53,24 @@ fun MeasureItem(
             Text(text = "SIV: ${measurement.siv}", fontSize = 15.sp)
             Text(text = "Stress: ${measurement.stress}", fontSize = 15.sp)
         }
-        IconButton(onClick = onNavigateTo) {
-            Icon(
-                imageVector = Icons.Default.PlayArrow,
-                contentDescription = "listen",
-                modifier = Modifier.size(30.dp)
-            )
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = onNavigateTo) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "listen",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "delete",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }
