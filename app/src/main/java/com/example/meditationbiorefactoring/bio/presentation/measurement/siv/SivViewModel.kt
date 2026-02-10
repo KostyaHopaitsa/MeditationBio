@@ -27,7 +27,6 @@ class SivViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(SivState())
     val state: StateFlow<SivState> = _state
-
     private val _navigateEvent = Channel<String>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
 
@@ -57,7 +56,7 @@ class SivViewModel @Inject constructor(
                             else if (result.value > 0.09) "high"
                             else "normal",
                         )
-                        aggregator.updateMeasurement(BioParamType.siv, result.value)
+                        aggregator.updateMeasurement(BioParamType.SIV, result.value)
                         aggregator.computeOverallStress()
                     }
 
@@ -70,7 +69,7 @@ class SivViewModel @Inject constructor(
 
                     is MeasurementResult.Error -> {
                         _state.value = _state.value.copy(
-                            error = ErrorType.UnknownError
+                            error = ErrorType.UNKNOWN_ERROR
                         )
                     }
                 }

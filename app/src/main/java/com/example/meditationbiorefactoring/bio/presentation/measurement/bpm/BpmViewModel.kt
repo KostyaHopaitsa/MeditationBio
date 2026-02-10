@@ -1,6 +1,5 @@
 package com.example.meditationbiorefactoring.bio.presentation.measurement.bpm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -29,16 +28,8 @@ class BpmViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(BpmState())
     val state: StateFlow<BpmState> = _state
-
-    private val _progress = MutableStateFlow(0f)
-    val progress: StateFlow<Float> = _progress
     private val _navigateEvent = Channel<Unit>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
-
-    init {
-        Log.d("BpmState", "${state.value}")
-        Log.d("BpmState", "${aggregator.state.value}")
-    }
 
     fun onEvent(event: BpmEvent) {
         when (event) {
@@ -58,7 +49,6 @@ class BpmViewModel @Inject constructor(
                 }
             }
             is BpmEvent.Reset -> {
-                _progress.value = 0f
                 _state.value = BpmState()
                 viewModelScope.launch {
                     resetBpmMeasurementUseCase()
@@ -76,7 +66,9 @@ class BpmViewModel @Inject constructor(
                 ppgCollector.timestamps,
                 ppgCollector.progress,
             )
-            _progress.value = bpm.progress
+            _state.value = _state.value.copy(
+                progress = bpm.progress
+            )
 
             when (val result = bpm.result) {
                 is MeasurementResult.Success -> {
@@ -88,17 +80,17 @@ class BpmViewModel @Inject constructor(
                         else if (result.value > 100) "high"
                         else "normal",
                     )
-                    aggregator.updateMeasurement(BioParamType.bpm, result.value)
+                    aggregator.updateMeasurement(BioParamType.BPM, result.value)
                 }
                 is MeasurementResult.Invalid -> {
                     _state.value = _state.value.copy(
                         isMeasuring = false,
-                        error = ErrorType.MeasureError,
+                        error = ErrorType.MEASURE_ERROR,
                     )
                 }
                 is MeasurementResult.Error -> {
                     _state.value = _state.value.copy(
-                        error = ErrorType.UnknownError,
+                        error = ErrorType.UNKNOWN_ERROR,
                     )
                 }
             }

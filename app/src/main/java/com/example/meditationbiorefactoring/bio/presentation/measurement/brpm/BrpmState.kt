@@ -8,5 +8,6 @@ data class BrpmState(
     val isMeasured: Boolean = false,
     val value: String = "",
     val status: String = "",
-    val error: ErrorType? = null
+    val error: ErrorType? = null,
+    val progress: Float = 0f
 )

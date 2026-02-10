@@ -31,10 +31,6 @@ class BrpmViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(BrpmState())
     val state: StateFlow<BrpmState> = _state
-
-    private val _progress = MutableStateFlow(0f)
-    val progress: StateFlow<Float> = _progress
-
     private val _navigateEvent = Channel<Unit>(Channel.BUFFERED)
     val navigateEvent = _navigateEvent.receiveAsFlow()
 
@@ -59,7 +55,6 @@ class BrpmViewModel @Inject constructor(
                 }
             }
             BrpmEvent.Reset -> {
-                _progress.value = 0f
                 _state.value = BrpmState()
                 viewModelScope.launch {
                     resetBrpmMeasurementUseCase()
@@ -71,7 +66,9 @@ class BrpmViewModel @Inject constructor(
     private fun processFrame(z: ZSignalResult) {
         if (z.progress >= 1f) accelerometer.stop()
         val brpm = computeBrpmUseCase(z.values, z.progress)
-        _progress.value = brpm.progress
+        _state.value = _state.value.copy(
+            progress = brpm.progress
+        )
 
         when (val result = brpm.result) {
             is MeasurementResult.Success -> {
@@ -83,7 +80,7 @@ class BrpmViewModel @Inject constructor(
                     else if (result.value > 25) "high"
                     else "normal",
                 )
-                aggregator.updateMeasurement(BioParamType.brpm, result.value)
+                aggregator.updateMeasurement(BioParamType.BRPM, result.value)
             }
 
             is MeasurementResult.Invalid -> {
@@ -95,7 +92,7 @@ class BrpmViewModel @Inject constructor(
 
             is MeasurementResult.Error -> {
                 _state.value = _state.value.copy(
-                    error = ErrorType.UnknownError,
+                    error = ErrorType.UNKNOWN_ERROR,
                 )
             }
         }

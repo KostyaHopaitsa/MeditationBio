@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import coil.request.ImageRequest
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(
@@ -31,11 +33,8 @@ class MusicViewModel @Inject constructor(
     private val playerUseCases: PlayerUseCases,
     private val getTagByStressLevelUseCase: GetTagByStressLevelUseCase
 ): ViewModel() {
-    private val _state = mutableStateOf(MusicState())
-    val state: State<MusicState> = _state
-
-    private val _progress = mutableFloatStateOf(0f)
-    val progress: State<Float> = _progress
+    private val _state = MutableStateFlow(MusicState())
+    val state: StateFlow<MusicState> = _state
 
     private var progressJob: Job? = null
     private var loadTracksJob: Job? = null
@@ -90,8 +89,10 @@ class MusicViewModel @Inject constructor(
             while (isActive) {
                 val position = playerUseCases.getCurrentPositionUseCase().toFloat()
                 val duration = playerUseCases.getDurationUseCase().toFloat()
-                _state.value = _state.value.copy(duration = duration)
-                _progress.floatValue = if (duration > 0) position / duration else 0f
+                _state.value = _state.value.copy(
+                    duration = duration,
+                    progress = if (duration > 0) position / duration else 0f
+                )
 
                 if (position >= duration && duration > 0 && !_state.value.isEnd) {
                     onEvent(MusicEvent.TrackEnd)

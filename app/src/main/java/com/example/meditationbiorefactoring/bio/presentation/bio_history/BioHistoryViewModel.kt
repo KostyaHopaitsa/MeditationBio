@@ -2,7 +2,6 @@ package com.example.meditationbiorefactoring.bio.presentation.bio_history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meditationbiorefactoring.bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.bio.domain.use_case.DeleteMeasurementUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.GetMeasurementsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

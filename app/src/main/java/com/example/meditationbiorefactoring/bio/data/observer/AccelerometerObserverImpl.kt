@@ -1,4 +1,4 @@
-package com.example.meditationbiorefactoring.bio.data.Observer
+package com.example.meditationbiorefactoring.bio.data.observer
 
 import android.content.Context
 import android.hardware.Sensor

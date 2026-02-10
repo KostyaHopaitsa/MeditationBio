@@ -29,7 +29,6 @@ fun BpmScreen(
     viewModel: BpmViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val progress by viewModel.progress.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect {
@@ -55,7 +54,7 @@ fun BpmScreen(
                     modifier = Modifier.fillMaxSize()
                 )
                 LinearProgressIndicator(
-                    progress = { progress },
+                    progress = { state.progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
@@ -75,9 +74,9 @@ fun BpmScreen(
             }
             state.error != null -> {
                 val errorMessage = when (state.error!!) {
-                    ErrorType.SensorError -> "Camera initialization failed"
-                    ErrorType.MeasureError -> "Measurement failed"
-                    ErrorType.UnknownError -> "Unknown error"
+                    ErrorType.SENSOR_ERROR -> "Camera initialization failed"
+                    ErrorType.MEASURE_ERROR -> "Measurement failed"
+                    ErrorType.UNKNOWN_ERROR -> "Unknown error"
                 }
                 Error(
                     message = errorMessage,

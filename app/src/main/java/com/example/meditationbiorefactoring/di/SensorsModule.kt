@@ -2,7 +2,7 @@ package com.example.meditationbiorefactoring.di
 
 import AudioObserverImpl
 import android.content.Context
-import com.example.meditationbiorefactoring.bio.data.Observer.AccelerometerObserverImpl
+import com.example.meditationbiorefactoring.bio.data.observer.AccelerometerObserverImpl
 import com.example.meditationbiorefactoring.bio.domain.observer.AccelerometerObserver
 import com.example.meditationbiorefactoring.bio.domain.observer.AudioObserver
 import dagger.Module

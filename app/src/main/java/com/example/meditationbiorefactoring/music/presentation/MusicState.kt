@@ -9,5 +9,6 @@ data class MusicState(
     val isPlaying: Boolean = false,
     val isEnd: Boolean = false,
     val duration: Float = 0f,
-    val error: String? = null
+    val error: String? = null,
+    val progress: Float = 0f
 )

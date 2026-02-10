@@ -23,8 +23,8 @@ fun BioHistoryScreen(
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateEvent.collect {
-            onNavigateToMusic
+        viewModel.navigateEvent.collect { stress ->
+            onNavigateToMusic(stress)
         }
     }
 

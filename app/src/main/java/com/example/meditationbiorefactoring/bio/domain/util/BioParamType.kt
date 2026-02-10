@@ -1,5 +1,5 @@
 package com.example.meditationbiorefactoring.bio.domain.util
 
 enum class BioParamType {
-    bpm, brpm, siv
+    BPM, BRPM, SIV
 }

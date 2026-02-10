@@ -9,5 +9,6 @@ data class BpmState(
     val value: String = "",
     val status: String = "",
     val error: ErrorType? = null,
-    val isTorchEnabled: Boolean = false
+    val isTorchEnabled: Boolean = false,
+    val progress: Float = 0f
 )

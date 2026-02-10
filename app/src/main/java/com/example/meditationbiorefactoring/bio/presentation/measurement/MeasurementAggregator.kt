@@ -19,9 +19,9 @@ class MeasurementAggregator @Inject constructor(
 
     fun updateMeasurement(type: BioParamType, value: Double) {
         _state.value = when (type) {
-            BioParamType.bpm -> _state.value.copy(stressData = _state.value.stressData.copy(bpm = value))
-            BioParamType.brpm -> _state.value.copy(stressData = _state.value.stressData.copy(brpm = value))
-            BioParamType.siv -> _state.value.copy(stressData = _state.value.stressData.copy(siv = value))
+            BioParamType.BPM -> _state.value.copy(stressData = _state.value.stressData.copy(bpm = value))
+            BioParamType.BRPM -> _state.value.copy(stressData = _state.value.stressData.copy(brpm = value))
+            BioParamType.SIV -> _state.value.copy(stressData = _state.value.stressData.copy(siv = value))
         }
     }
 

@@ -26,7 +26,6 @@ fun BrpmScreen(
     viewModel: BrpmViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val progress by viewModel.progress.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.navigateEvent.collect {
@@ -47,7 +46,7 @@ fun BrpmScreen(
             }
             state.isMeasuring -> {
                 LinearProgressIndicator(
-                    progress = { progress },
+                    progress = { state.progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
@@ -66,9 +65,9 @@ fun BrpmScreen(
             }
             state.error != null -> {
                 val errorMessage = when (state.error!!) {
-                    ErrorType.SensorError -> "Accelerator initialization failed"
+                    ErrorType.SENSOR_ERROR -> "Accelerator initialization failed"
                     ErrorType.MeasureError -> "Measurement failed"
-                    ErrorType.UnknownError -> "Unknown error"
+                    ErrorType.UNKNOWN_ERROR -> "Unknown error"
                 }
                 Error(
                     message = errorMessage,

@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +33,7 @@ fun MusicScreen(
     viewModel: MusicViewModel = hiltViewModel(),
     stressLevel: String? = null,
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(stressLevel) {
         viewModel.loadMusic(stressLevel)
@@ -54,7 +56,7 @@ fun MusicScreen(
         }
         state.error != null -> {
             Error(
-                message = state.error,
+                message = state.error!!,
                 onRetry = { viewModel.onEvent(MusicEvent.Retry) }
             )
         }
@@ -81,7 +83,7 @@ fun MusicScreen(
             state.currentTrack?.let {
                 PlayerBar(
                     track = it,
-                    progress = viewModel.progress.value,
+                    progress = state.progress,
                     buttonIcon = if (state.isPlaying) Icons.Default.Pause
                     else if (state.isEnd) Icons.Default.Replay
                     else Icons.Default.PlayArrow,
