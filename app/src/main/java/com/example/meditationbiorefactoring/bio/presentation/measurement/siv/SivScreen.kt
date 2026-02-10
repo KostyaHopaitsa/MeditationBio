@@ -72,7 +72,7 @@ fun SivScreen(
             state.error != null -> {
                 val errorMessage = when (state.error!!) {
                     ErrorType.SENSOR_ERROR -> "Micro initialization failed"
-                    ErrorType.MeasureError -> "Measurement failed"
+                    ErrorType.MEASURE_ERROR -> "Measurement failed"
                     ErrorType.UNKNOWN_ERROR -> "Unknown error"
                 }
                 Error(

@@ -66,7 +66,7 @@ fun BrpmScreen(
             state.error != null -> {
                 val errorMessage = when (state.error!!) {
                     ErrorType.SENSOR_ERROR -> "Accelerator initialization failed"
-                    ErrorType.MeasureError -> "Measurement failed"
+                    ErrorType.MEASURE_ERROR -> "Measurement failed"
                     ErrorType.UNKNOWN_ERROR -> "Unknown error"
                 }
                 Error(
