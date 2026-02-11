@@ -22,9 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.meditationbiorefactoring.common.presentation.components.Error
+import coil.Coil
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import com.example.meditationbiorefactoring.common.components.Error
 import com.example.meditationbiorefactoring.music.presentation.components.MusicItem
 import com.example.meditationbiorefactoring.music.presentation.components.PlayerBar
 
@@ -34,14 +38,25 @@ fun MusicScreen(
     stressLevel: String? = null,
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val imageLoader = remember { Coil.imageLoader(context) }
 
     LaunchedEffect(stressLevel) {
         viewModel.loadMusic(stressLevel)
     }
 
     LaunchedEffect(state.tracks) {
-        if (state.tracks.isNotEmpty()) {
-            viewModel.preloadImages(state.tracks)
+        state.tracks.forEach { track ->
+            track.imageUrl?.let { url ->
+                imageLoader.enqueue(
+                    ImageRequest.Builder(context)
+                        .data(url)
+                        .size(300)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .build()
+                )
+            }
         }
     }
 

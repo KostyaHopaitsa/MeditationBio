@@ -1,23 +1,22 @@
 package com.example.meditationbiorefactoring.bio.domain.core
 
-import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
+import com.example.meditationbiorefactoring.bio.domain.model.ZData
 import com.example.meditationbiorefactoring.bio.domain.util.SignalProcessing
-import javax.inject.Inject
 import kotlin.math.min
 
-class BreathAnalyzerCore @Inject constructor() {
+class BreathAnalyzerCore {
     private val zValues = mutableListOf<Double>()
     private val bufferSize = 1200
     private val minPeakDistance = 30
     private val minPeakAmplitude = 0.007f
 
-    fun collectZValues(z: Double): ZSignalResult {
+    fun collectZValues(z: Double): ZData {
         zValues.add(z)
         if (zValues.size > bufferSize) zValues.removeAt(0)
 
         val progress = zValues.size.toFloat() / bufferSize.toFloat()
 
-        return ZSignalResult(zValues.toList(), progress)
+        return ZData(zValues.toList(), progress)
     }
 
     fun computeBrpm(values: List<Double>): Double {

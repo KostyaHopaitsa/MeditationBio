@@ -2,15 +2,14 @@ package com.example.meditationbiorefactoring.bio.presentation.measurement.brpm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.bio.domain.model.ZSignalResult
-import com.example.meditationbiorefactoring.bio.domain.observer.AccelerometerObserver
-import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeBrpmUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.ResetBrpmMeasurementUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.CollectZValuesUseCase
-import com.example.meditationbiorefactoring.bio.domain.util.BioParamType
+import com.example.meditationbiorefactoring.bio.domain.model.ZData
+import com.example.meditationbiorefactoring.bio.domain.use_case.core_use_case.BreathCoreUseCases
+import com.example.meditationbiorefactoring.bio.domain.use_case.sensor_use_case.StartAccelerometerUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.sensor_use_case.StopAccelerometerUseCase
+import com.example.meditationbiorefactoring.bio.domain.model.BioParamType
 import com.example.meditationbiorefactoring.bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
+import com.example.meditationbiorefactoring.common.DomainResult
+import com.example.meditationbiorefactoring.common.toUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +21,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrpmViewModel @Inject constructor(
-    private val computeBrpmUseCase: ComputeBrpmUseCase,
-    private val collectZValuesUseCase: CollectZValuesUseCase,
-    private val resetBrpmMeasurementUseCase: ResetBrpmMeasurementUseCase,
-    private val accelerometer: AccelerometerObserver,
+    private val breathCoreUseCases: BreathCoreUseCases,
+    private val startAccelerometerUseCase: StartAccelerometerUseCase,
+    private val stopAccelerometerUseCase: StopAccelerometerUseCase,
     private val aggregator: MeasurementAggregator
 ): ViewModel() {
 
@@ -41,9 +39,12 @@ class BrpmViewModel @Inject constructor(
                     isMeasuring = true,
                     isLoading = false,
                 )
-                accelerometer.start { values ->
-                    val zSignalResult = collectZValuesUseCase(values[2].toDouble())
-                    onEvent(BrpmEvent.DataCaptured(zSignalResult))
+                viewModelScope.launch {
+                    startAccelerometerUseCase().collect { values ->
+                        val zSignalResult = breathCoreUseCases
+                            .collectZValuesUseCase(values[2].toDouble())
+                        onEvent(BrpmEvent.DataCaptured(zSignalResult))
+                    }
                 }
             }
             is BrpmEvent.DataCaptured -> {
@@ -57,42 +58,35 @@ class BrpmViewModel @Inject constructor(
             BrpmEvent.Reset -> {
                 _state.value = BrpmState()
                 viewModelScope.launch {
-                    resetBrpmMeasurementUseCase()
+                    breathCoreUseCases.resetBrpmMeasurementUseCase()
                 }
             }
         }
     }
 
-    private fun processFrame(z: ZSignalResult) {
-        if (z.progress >= 1f) accelerometer.stop()
-        val brpm = computeBrpmUseCase(z.values, z.progress)
+    private fun processFrame(z: ZData) {
+        if (z.progress >= 1f) stopAccelerometerUseCase()
+        val result = breathCoreUseCases.computeBrpmUseCase(z.values, z.progress)
         _state.value = _state.value.copy(
-            progress = brpm.progress
+            progress = z.progress
         )
 
-        when (val result = brpm.result) {
-            is MeasurementResult.Success -> {
+        when (result) {
+            is DomainResult.Success -> {
                 _state.value = _state.value.copy(
                     isMeasuring = false,
                     isMeasured = true,
-                    value = String.format(Locale.US, "%.2f", result.value),
-                    status = if (result.value < 12) "low"
-                    else if (result.value > 25) "high"
+                    value = String.format(Locale.US, "%.2f", result.data),
+                    status = if (result.data < 12) "low"
+                    else if (result.data > 25) "high"
                     else "normal",
                 )
-                aggregator.updateMeasurement(BioParamType.BRPM, result.value)
+                aggregator.updateMeasurement(BioParamType.BRPM, result.data)
             }
 
-            is MeasurementResult.Invalid -> {
+            is DomainResult.Error -> {
                 _state.value = _state.value.copy(
-                    isMeasuring = false,
-                    error = ErrorType.MEASURE_ERROR,
-                )
-            }
-
-            is MeasurementResult.Error -> {
-                _state.value = _state.value.copy(
-                    error = ErrorType.UNKNOWN_ERROR,
+                    error = result.error.toUiError().message,
                 )
             }
         }

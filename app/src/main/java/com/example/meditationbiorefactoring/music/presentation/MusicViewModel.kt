@@ -1,17 +1,10 @@
 package com.example.meditationbiorefactoring.music.presentation
 
-import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.Coil
-import coil.request.CachePolicy
-import com.example.meditationbiorefactoring.music.domain.model.Track
 import com.example.meditationbiorefactoring.music.domain.use_case.GetTagByStressLevelUseCase
-import com.example.meditationbiorefactoring.music.domain.use_case.GetTracksByTagUseCase
-import com.example.meditationbiorefactoring.music.domain.use_case.PlayerUseCases
+import com.example.meditationbiorefactoring.music.domain.use_case.track_use_case.GetTracksByTagUseCase
+import com.example.meditationbiorefactoring.music.domain.use_case.player_use_case.PlayerUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,14 +14,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import coil.request.ImageRequest
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val getTracksByTagUseCase: GetTracksByTagUseCase,
     private val playerUseCases: PlayerUseCases,
     private val getTagByStressLevelUseCase: GetTagByStressLevelUseCase
@@ -136,23 +126,6 @@ class MusicViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
-    }
-
-    fun preloadImages(tracks: List<Track>) {
-        val imageLoader = Coil.imageLoader(context)
-        tracks.forEach { track ->
-            track.imageUrl?.let { url ->
-                imageLoader.enqueue(
-                    ImageRequest.Builder(context)
-                        .data(url)
-                        .size(300)
-                        .diskCachePolicy(CachePolicy.ENABLED)
-                        .memoryCachePolicy(CachePolicy.ENABLED)
-                        .allowHardware(true)
-                        .build()
-                )
-            }
-        }
     }
 
     override fun onCleared() {

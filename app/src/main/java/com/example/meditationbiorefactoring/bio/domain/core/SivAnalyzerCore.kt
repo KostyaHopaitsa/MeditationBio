@@ -26,8 +26,8 @@ class SivAnalyzerCore {
         return result
     }
 
-    fun computeSiv(buffer: ShortArray, length: Int): Double {
-        val norm = buffer.take(length).map { it / 32768.0 }.toDoubleArray()
+    fun computeSiv(buffer: ShortArray): Double {
+        val norm = buffer.take(buffer.size).map { it / 32768.0 }.toDoubleArray()
         val normalized = SignalProcessing.normalize(norm)
         val rms = sqrt(normalized.map { it * it }.average())
         val mean = normalized.average()

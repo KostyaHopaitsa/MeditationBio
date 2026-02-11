@@ -4,13 +4,11 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
-import com.example.meditationbiorefactoring.bio.domain.model.MeasurementResult
-import com.example.meditationbiorefactoring.bio.domain.use_case.CollectPpgSignalUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeBpmUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.ResetBpmMeasurementUseCase
-import com.example.meditationbiorefactoring.bio.domain.util.BioParamType
+import com.example.meditationbiorefactoring.bio.domain.use_case.core_use_case.PpgCoreUseCases
+import com.example.meditationbiorefactoring.bio.domain.model.BioParamType
 import com.example.meditationbiorefactoring.bio.presentation.measurement.MeasurementAggregator
-import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
+import com.example.meditationbiorefactoring.common.DomainResult
+import com.example.meditationbiorefactoring.common.toUiError
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +18,7 @@ import java.util.Locale
 
 @HiltViewModel
 class BpmViewModel @Inject constructor(
-    private val computeBpmUseCase: ComputeBpmUseCase,
-    private val collectPpgSignalUseCase: CollectPpgSignalUseCase,
-    private val resetBpmMeasurementUseCase: ResetBpmMeasurementUseCase,
+    private val ppgCoreUseCases: PpgCoreUseCases,
     private val aggregator: MeasurementAggregator,
 ) : ViewModel() {
 
@@ -51,7 +47,7 @@ class BpmViewModel @Inject constructor(
             is BpmEvent.Reset -> {
                 _state.value = BpmState()
                 viewModelScope.launch {
-                    resetBpmMeasurementUseCase()
+                    ppgCoreUseCases.resetBpmMeasurementUseCase()
                 }
             }
         }
@@ -60,37 +56,31 @@ class BpmViewModel @Inject constructor(
     private fun processFrame(buffer: ByteArray) {
         viewModelScope.launch {
 
-            val ppgCollector = collectPpgSignalUseCase(buffer)
-            val bpm = computeBpmUseCase(
+            val ppgCollector = ppgCoreUseCases.collectPpgSignalUseCase(buffer)
+            val result = ppgCoreUseCases.computeBpmUseCase(
                 ppgCollector.values,
                 ppgCollector.timestamps,
                 ppgCollector.progress,
             )
             _state.value = _state.value.copy(
-                progress = bpm.progress
+                progress = ppgCollector.progress
             )
 
-            when (val result = bpm.result) {
-                is MeasurementResult.Success -> {
+            when (result) {
+                is DomainResult.Success -> {
                     _state.value = _state.value.copy(
                         isMeasuring = false,
                         isMeasured = true,
-                        value = String.format(Locale.US, "%.2f", result.value),
-                        status = if (result.value < 60) "low"
-                        else if (result.value > 100) "high"
+                        value = String.format(Locale.US, "%.2f", result.data),
+                        status = if (result.data < 60) "low"
+                        else if (result.data > 100) "high"
                         else "normal",
                     )
-                    aggregator.updateMeasurement(BioParamType.BPM, result.value)
+                    aggregator.updateMeasurement(BioParamType.BPM, result.data)
                 }
-                is MeasurementResult.Invalid -> {
+                is DomainResult.Error -> {
                     _state.value = _state.value.copy(
-                        isMeasuring = false,
-                        error = ErrorType.MEASURE_ERROR,
-                    )
-                }
-                is MeasurementResult.Error -> {
-                    _state.value = _state.value.copy(
-                        error = ErrorType.UNKNOWN_ERROR,
+                        error = result.error.toUiError().message,
                     )
                 }
             }

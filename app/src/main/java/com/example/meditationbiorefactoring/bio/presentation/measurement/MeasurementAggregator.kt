@@ -4,8 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.example.meditationbiorefactoring.bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeOverallStressUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.InsertMeasurementUseCase
-import com.example.meditationbiorefactoring.bio.domain.util.BioParamType
+import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.InsertMeasurementUseCase
+import com.example.meditationbiorefactoring.bio.domain.model.BioParamType
 import javax.inject.Inject
 import javax.inject.Singleton
 

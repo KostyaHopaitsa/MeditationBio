@@ -2,8 +2,8 @@ package com.example.meditationbiorefactoring.bio.presentation.bio_history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meditationbiorefactoring.bio.domain.use_case.DeleteMeasurementUseCase
-import com.example.meditationbiorefactoring.bio.domain.use_case.GetMeasurementsUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.DeleteMeasurementUseCase
+import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.GetMeasurementsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

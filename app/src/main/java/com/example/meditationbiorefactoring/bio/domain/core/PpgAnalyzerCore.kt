@@ -1,16 +1,16 @@
 package com.example.meditationbiorefactoring.bio.domain.core
 
-import com.example.meditationbiorefactoring.bio.domain.model.PpgSignalResult
+import com.example.meditationbiorefactoring.bio.domain.model.PpgData
 import com.example.meditationbiorefactoring.bio.domain.util.SignalProcessing
 import javax.inject.Inject
 
-class PpgAnalyzerCore @Inject constructor() {
+class PpgAnalyzerCore {
 
     private val values = mutableListOf<Double>()
     private val timestamps = mutableListOf<Long>()
     private val maxBufferSize = 200
 
-    fun collectPpgSignal(buffer: ByteArray): PpgSignalResult {
+    fun collectPpgSignal(buffer: ByteArray): PpgData {
 
         val avg = buffer.map { it.toInt() and 0xFF }.average()
         values.add(avg)
@@ -23,7 +23,7 @@ class PpgAnalyzerCore @Inject constructor() {
 
         val progress = values.size / maxBufferSize.toFloat()
 
-        return PpgSignalResult(values, timestamps, progress)
+        return PpgData(values, timestamps, progress)
     }
 
     fun computeBpm(signal: List<Double>, times: List<Long>): Double {

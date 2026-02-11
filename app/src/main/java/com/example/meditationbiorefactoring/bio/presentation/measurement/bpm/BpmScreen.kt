@@ -16,8 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.meditationbiorefactoring.bio.presentation.measurement.util.ErrorType
-import com.example.meditationbiorefactoring.common.presentation.components.Error
+import com.example.meditationbiorefactoring.common.components.Error
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementStart
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementResult
 import com.example.meditationbiorefactoring.bio.presentation.measurement.bpm.components.CameraPreview
@@ -72,14 +71,9 @@ fun BpmScreen(
                 )
 
             }
-            state.error != null -> {
-                val errorMessage = when (state.error!!) {
-                    ErrorType.SENSOR_ERROR -> "Camera initialization failed"
-                    ErrorType.MEASURE_ERROR -> "Measurement failed"
-                    ErrorType.UNKNOWN_ERROR -> "Unknown error"
-                }
+            state.error.isNotBlank() -> {
                 Error(
-                    message = errorMessage,
+                    message = state.error,
                     onRetry = { viewModel.onEvent(BpmEvent.Reset) }
                 )
             }
