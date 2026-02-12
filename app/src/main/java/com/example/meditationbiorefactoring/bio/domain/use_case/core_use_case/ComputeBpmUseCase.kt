@@ -11,15 +11,10 @@ class ComputeBpmUseCase @Inject constructor(
     operator fun invoke(
         signal: List<Double>,
         timestamps: List<Long>,
-        progress: Float
     ): DomainResult<Double> {
-        return if (progress >= 1f) {
-            val bpm = ppgAnalyzerCore.computeBpm(signal, timestamps)
-            if (bpm in 40f..150f) {
-                DomainResult.Success(bpm)
-            } else {
-                DomainResult.Error(DomainError.MeasureFailed)
-            }
+        val bpm = ppgAnalyzerCore.computeBpm(signal, timestamps)
+        return if (bpm in 40f..150f) {
+            DomainResult.Success(bpm)
         } else {
             DomainResult.Error(DomainError.MeasureFailed)
         }

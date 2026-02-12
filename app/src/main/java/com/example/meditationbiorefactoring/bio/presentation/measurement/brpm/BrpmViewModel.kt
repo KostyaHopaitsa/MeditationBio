@@ -40,15 +40,23 @@ class BrpmViewModel @Inject constructor(
                     isLoading = false,
                 )
                 viewModelScope.launch {
-                    startAccelerometerUseCase().collect { values ->
-                        val zSignalResult = breathCoreUseCases
-                            .collectZValuesUseCase(values[2].toDouble())
-                        onEvent(BrpmEvent.DataCaptured(zSignalResult))
+                    startAccelerometerUseCase().collect { result ->
+                        when(result) {
+                            is DomainResult.Success -> {
+                                val zSignalResult = breathCoreUseCases.collectZValuesUseCase(
+                                    result.data[2].toDouble()
+                                )
+                                processFrame(zSignalResult)
+                            }
+                            is DomainResult.Error -> {
+                                _state.value = _state.value.copy(
+                                    error = result.error.toUiError().message,
+                                    isMeasuring = false
+                                )
+                            }
+                        }
                     }
                 }
-            }
-            is BrpmEvent.DataCaptured -> {
-                processFrame(event.z)
             }
             is BrpmEvent.NavigateClick -> {
                 viewModelScope.launch {
@@ -65,13 +73,21 @@ class BrpmViewModel @Inject constructor(
     }
 
     private fun processFrame(z: ZData) {
-        if (z.progress >= 1f) stopAccelerometerUseCase()
-        val result = breathCoreUseCases.computeBrpmUseCase(z.values, z.progress)
+
+
         _state.value = _state.value.copy(
             progress = z.progress
         )
 
-        when (result) {
+        if (z.progress >= 1f) {
+            stopAccelerometerUseCase()
+            computeResult(z.values)
+        }
+
+    }
+
+    private fun computeResult(z: List<Double>) {
+        when (val result = breathCoreUseCases.computeBrpmUseCase(z)) {
             is DomainResult.Success -> {
                 _state.value = _state.value.copy(
                     isMeasuring = false,

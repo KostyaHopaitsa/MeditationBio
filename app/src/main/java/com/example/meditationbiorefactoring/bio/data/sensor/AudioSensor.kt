@@ -23,7 +23,7 @@ class AudioSensor {
     fun start(onChunk: (ShortArray) -> Unit) {
         try {
             bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-            if (bufferSize <= 0) return
+            if (bufferSize <= 0) throw IllegalStateException("Audio buffer size invalid")
 
             recorder = AudioRecord(
                 MediaRecorder.AudioSource.MIC,
@@ -34,7 +34,7 @@ class AudioSensor {
             )
 
             if (recorder?.state != AudioRecord.STATE_INITIALIZED) {
-                return
+                throw IllegalStateException("AudioRecord not initialized")
             }
 
             val buffer = ShortArray(bufferSize)
@@ -49,8 +49,8 @@ class AudioSensor {
                 }
             }
 
-        } catch (_: SecurityException) {
-            return
+        } catch (e: SecurityException) {
+            throw e
         }
     }
 

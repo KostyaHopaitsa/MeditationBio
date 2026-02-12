@@ -10,15 +10,10 @@ class ComputeBrpmUseCase @Inject constructor(
 ) {
     operator fun invoke(
         zValues: List<Double>,
-        progress: Float
     ): DomainResult<Double> {
-        return if (progress >= 1f) {
-            val brpm = breathAnalyzerCore.computeBrpm(zValues)
-            if (brpm in 5f..40f) {
-                DomainResult.Success(brpm)
-            } else {
-                DomainResult.Error(DomainError.MeasureFailed)
-            }
+        val brpm = breathAnalyzerCore.computeBrpm(zValues)
+        return if (brpm in 5f..40f) {
+            DomainResult.Success(brpm)
         } else {
             DomainResult.Error(DomainError.MeasureFailed)
         }

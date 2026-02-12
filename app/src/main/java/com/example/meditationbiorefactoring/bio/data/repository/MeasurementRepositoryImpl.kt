@@ -24,5 +24,4 @@ class MeasurementRepositoryImpl @Inject constructor(
     override suspend fun deleteMeasurement(measurement: Measurement) {
         dao.deleteMeasurement(measurement)
     }
-
 }

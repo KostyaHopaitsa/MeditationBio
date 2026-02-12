@@ -6,6 +6,7 @@ import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.use_case.core_use_case.PpgCoreUseCases
 import com.example.meditationbiorefactoring.bio.domain.model.BioParamType
+import com.example.meditationbiorefactoring.bio.domain.model.PpgData
 import com.example.meditationbiorefactoring.bio.presentation.measurement.MeasurementAggregator
 import com.example.meditationbiorefactoring.common.DomainResult
 import com.example.meditationbiorefactoring.common.toUiError
@@ -54,36 +55,40 @@ class BpmViewModel @Inject constructor(
     }
 
     private fun processFrame(buffer: ByteArray) {
-        viewModelScope.launch {
+        val ppgCollector = ppgCoreUseCases.collectPpgSignalUseCase(buffer)
 
-            val ppgCollector = ppgCoreUseCases.collectPpgSignalUseCase(buffer)
-            val result = ppgCoreUseCases.computeBpmUseCase(
-                ppgCollector.values,
-                ppgCollector.timestamps,
-                ppgCollector.progress,
-            )
-            _state.value = _state.value.copy(
-                progress = ppgCollector.progress
-            )
+        _state.value = _state.value.copy(
+            progress = ppgCollector.progress
+        )
 
-            when (result) {
-                is DomainResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isMeasuring = false,
-                        isMeasured = true,
-                        value = String.format(Locale.US, "%.2f", result.data),
-                        status = if (result.data < 60) "low"
-                        else if (result.data > 100) "high"
-                        else "normal",
-                    )
-                    aggregator.updateMeasurement(BioParamType.BPM, result.data)
-                }
-                is DomainResult.Error -> {
-                    _state.value = _state.value.copy(
-                        error = result.error.toUiError().message,
-                    )
-                }
+        if(ppgCollector.progress >= 1f) computeResult(ppgCollector)
+    }
+
+    private fun computeResult(ppgData: PpgData) {
+        val result = ppgCoreUseCases.computeBpmUseCase(
+            ppgData.values,
+            ppgData.timestamps,
+        )
+
+        when (result) {
+            is DomainResult.Success -> {
+                _state.value = _state.value.copy(
+                    isMeasuring = false,
+                    isMeasured = true,
+                    value = String.format(Locale.US, "%.2f", result.data),
+                    status = if (result.data < 60) "low"
+                    else if (result.data > 100) "high"
+                    else "normal",
+                )
+                aggregator.updateMeasurement(BioParamType.BPM, result.data)
+            }
+
+            is DomainResult.Error -> {
+                _state.value = _state.value.copy(
+                    error = result.error.toUiError().message,
+                )
             }
         }
     }
+
 }

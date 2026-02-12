@@ -56,7 +56,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 }
             )
         }
-        composable(route = Screen.MusicScreen.route,
+        composable(
+            route = Screen.MusicScreen.route,
             arguments = listOf(
                 navArgument("stressLevel") {
                     type = NavType.StringType

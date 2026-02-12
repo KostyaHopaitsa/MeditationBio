@@ -36,8 +36,18 @@ class SivViewModel @Inject constructor(
         when (event) {
             is SivEvent.Start -> {
                 viewModelScope.launch {
-                    startAudioUseCase().collect { chunk ->
-                        audioCoreUseCases.addChunkUseCase(chunk)
+                    startAudioUseCase().collect { result ->
+                        when(result) {
+                            is DomainResult.Success -> {
+                                audioCoreUseCases.addChunkUseCase(result.data)
+                            }
+                            is DomainResult.Error -> {
+                                _state.value = _state.value.copy(
+                                    error = result.error.toUiError().message,
+                                    isMeasuring = false
+                                )
+                            }
+                        }
                     }
                 }
                 _state.value = _state.value.copy(isMeasuring = true)
