@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.DeleteMeasurementUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.GetMeasurementsUseCase
+import com.example.meditationbiorefactoring.common.DomainResult
+import com.example.meditationbiorefactoring.common.toUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -30,18 +31,22 @@ class BioHistoryViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
 
         getMeasurementsUseCase()
-            .onEach { measurements ->
-                _state.value = _state.value.copy(
-                    measurements = measurements,
-                    isLoading = false,
-                    error = null
-                )
-            }
-            .catch { e ->
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Unknown error"
-                )
+            .onEach { result ->
+                when (result) {
+                    is DomainResult.Success -> {
+                        _state.value = _state.value.copy(
+                            measurements = result.data,
+                            isLoading = false,
+                            error = ""
+                        )
+                    }
+                    is DomainResult.Error -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = (result.error.toUiError().message)
+                        )
+                    }
+                }
             }
             .launchIn(viewModelScope)
     }
@@ -50,7 +55,14 @@ class BioHistoryViewModel @Inject constructor(
         when(event) {
             is BioHistoryEvent.Delete -> {
                 viewModelScope.launch {
-                    deleteMeasurementUseCase(event.measurement)
+                    when (val result = deleteMeasurementUseCase(event.measurement)) {
+                        is DomainResult.Success -> (Unit)
+                        is DomainResult.Error -> {
+                            _state.value = _state.value.copy(
+                                error = (result.error.toUiError().message)
+                            )
+                        }
+                    }
                 }
             }
             is BioHistoryEvent.NavigateClick -> {

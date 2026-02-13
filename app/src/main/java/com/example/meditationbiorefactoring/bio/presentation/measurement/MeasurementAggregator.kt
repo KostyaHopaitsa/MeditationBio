@@ -1,11 +1,16 @@
 package com.example.meditationbiorefactoring.bio.presentation.measurement
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import com.example.meditationbiorefactoring.bio.domain.model.Measurement
 import com.example.meditationbiorefactoring.bio.domain.use_case.ComputeOverallStressUseCase
 import com.example.meditationbiorefactoring.bio.domain.use_case.measurement_use_case.InsertMeasurementUseCase
 import com.example.meditationbiorefactoring.bio.domain.model.BioParamType
+import com.example.meditationbiorefactoring.bio.presentation.measurement.util.MeasurementState
+import com.example.meditationbiorefactoring.common.DomainError
+import com.example.meditationbiorefactoring.common.DomainResult
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,35 +19,50 @@ class MeasurementAggregator @Inject constructor(
     private val computeOverallStressUseCase: ComputeOverallStressUseCase,
     private val insertMeasurementUseCase: InsertMeasurementUseCase
 ) {
-    private val _state = mutableStateOf(MeasurementState())
-    val state: State<MeasurementState> = _state
+    private val _state = MutableStateFlow(MeasurementState())
+    val state: StateFlow<MeasurementState> = _state.asStateFlow()
 
     fun updateMeasurement(type: BioParamType, value: Double) {
-        _state.value = when (type) {
-            BioParamType.BPM -> _state.value.copy(stressData = _state.value.stressData.copy(bpm = value))
-            BioParamType.BRPM -> _state.value.copy(stressData = _state.value.stressData.copy(brpm = value))
-            BioParamType.SIV -> _state.value.copy(stressData = _state.value.stressData.copy(siv = value))
+        _state.update { current ->
+            when (type) {
+                BioParamType.BPM -> current.copy(stressData = current.stressData.copy(bpm = value))
+                BioParamType.BRPM -> current.copy(stressData = current.stressData.copy(brpm = value))
+                BioParamType.SIV -> current.copy(stressData = current.stressData.copy(siv = value))
+            }
         }
     }
 
-    fun computeOverallStress() {
-        _state.value = _state.value.copy(
-            overallStress = computeOverallStressUseCase(_state.value.stressData)
-        )
+    fun computeOverallStress(): DomainResult<Unit> {
+        return when(val result = computeOverallStressUseCase(_state.value.stressData)) {
+            is DomainResult.Success -> {
+                val stressLevel = when {
+                    result.data < 3 -> "Low"
+                    result.data < 5 -> "Middle"
+                    else -> "High"
+                }
+                _state.update { it.copy(overallStress = stressLevel) }
+                DomainResult.Success(Unit)
+            }
+            is DomainResult.Error -> {
+                DomainResult.Error(result.error)
+            }
+        }
     }
 
-    suspend fun saveMeasurement() {
+    suspend fun saveMeasurement(): DomainResult<Unit> {
         val data = _state.value.stressData
-        if (data.isComplete()) {
+        return if (data.bpm != null && data.brpm != null && data.siv != null) {
             insertMeasurementUseCase(
                 Measurement(
                     timestamp = System.currentTimeMillis(),
-                    bpm = data.bpm!!,
-                    brpm = data.brpm!!,
-                    siv = data.siv!!,
+                    bpm = data.bpm,
+                    brpm = data.brpm,
+                    siv = data.siv,
                     stress = _state.value.overallStress
                 )
             )
+        } else {
+            DomainResult.Error(DomainError.NotComplete)
         }
     }
 }

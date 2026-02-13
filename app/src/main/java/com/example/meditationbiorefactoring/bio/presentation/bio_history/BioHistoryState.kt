@@ -5,5 +5,5 @@ import com.example.meditationbiorefactoring.bio.domain.model.Measurement
 data class BioHistoryState(
     val measurements: List<Measurement> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String = ""
 )

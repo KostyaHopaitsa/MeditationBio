@@ -1,9 +1,8 @@
-package com.example.meditationbiorefactoring.bio.presentation.measurement
+package com.example.meditationbiorefactoring.bio.presentation.measurement.util
 
 import com.example.meditationbiorefactoring.bio.domain.model.StressData
 
 data class MeasurementState(
     val stressData: StressData = StressData(),
-    val overallStress: String = ""
+    val overallStress: String = "",
 )
-

@@ -66,7 +66,15 @@ class SivViewModel @Inject constructor(
                             else "normal",
                         )
                         aggregator.updateMeasurement(BioParamType.SIV, result.data)
-                        aggregator.computeOverallStress()
+                        when (val result = aggregator.computeOverallStress()) {
+                            is DomainResult.Success -> (Unit)
+                            is DomainResult.Error -> {
+                                _state.value = _state.value.copy(
+                                    isMeasuring = false,
+                                    error = result.error.toUiError().message
+                                )
+                            }
+                        }
                     }
                     is DomainResult.Error -> {
                         _state.value = _state.value.copy(

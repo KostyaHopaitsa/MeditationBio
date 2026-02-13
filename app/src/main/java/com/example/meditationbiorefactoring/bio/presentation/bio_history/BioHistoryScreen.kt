@@ -34,7 +34,7 @@ fun BioHistoryScreen(
                 CircularProgressIndicator()
             }
         }
-        state.error != null -> {
+        state.error.isNotBlank() -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "Error: ${state.error}")
             }

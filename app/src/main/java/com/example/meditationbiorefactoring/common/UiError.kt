@@ -10,16 +10,5 @@ sealed class UiError(val message: String) {
     object Database : UiError("Database error")
     object Unknown : UiError("Unknown error")
     object Measurement : UiError("Measurement failed")
-}
-
-fun DomainError.toUiError(): UiError = when (this) {
-    DomainError.PermissionDenied -> UiError.Permission
-    DomainError.SensorUnavailable -> UiError.Sensor
-    DomainError.PlaybackError -> UiError.Playback
-    DomainError.NetworkError -> UiError.Network
-    is DomainError.HttpError -> UiError.Http(code)
-    DomainError.ParsingError -> UiError.Parsing
-    DomainError.DatabaseError -> UiError.Database
-    DomainError.MeasureFailed -> UiError.Measurement
-    DomainError.Unknown -> UiError.Unknown
+    object Collection: UiError("Not collected yet")
 }

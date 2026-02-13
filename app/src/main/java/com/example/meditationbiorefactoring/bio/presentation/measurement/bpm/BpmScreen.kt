@@ -1,5 +1,6 @@
 package com.example.meditationbiorefactoring.bio.presentation.measurement.bpm
 
+import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +22,7 @@ import com.example.meditationbiorefactoring.bio.presentation.measurement.compone
 import com.example.meditationbiorefactoring.bio.presentation.measurement.components.MeasurementResult
 import com.example.meditationbiorefactoring.bio.presentation.measurement.bpm.components.CameraPreview
 
-@ExperimentalGetImage
+@OptIn(ExperimentalGetImage::class)
 @Composable
 fun BpmScreen(
     onNavigateToBrpm: () -> Unit,
