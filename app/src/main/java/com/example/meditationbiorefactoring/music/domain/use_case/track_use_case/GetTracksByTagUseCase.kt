@@ -1,12 +1,16 @@
 package com.example.meditationbiorefactoring.music.domain.use_case.track_use_case
 
-import android.util.Log
+import com.example.meditationbiorefactoring.common.DataResult
+import com.example.meditationbiorefactoring.common.DomainResult
+import com.example.meditationbiorefactoring.common.toDomainError
 import com.example.meditationbiorefactoring.music.domain.model.Track
 import com.example.meditationbiorefactoring.music.domain.repository.TrackRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
+import java.io.IOException
 import javax.inject.Inject
 
 class GetTracksByTagUseCase @Inject constructor(
@@ -16,29 +20,21 @@ class GetTracksByTagUseCase @Inject constructor(
         tag: String,
         maxRetries: Int = 5,
         retryDelay: Long = 500L
-    ): Flow<List<Track>> = flow {
-        var attempt = 0
-        var result: List<Track>
-
-        do {
-            result = try {
-                repository.getTracksByTag(tag).first()
-            } catch (e: Exception) {
-                Log.e("GetTracksByTagUseCase", "Error on attempt $attempt: ${e.message}")
-                emptyList()
+    ): Flow<DomainResult<List<Track>>> {
+        return repository.getTracksByTag(tag)
+            .map<DataResult<List<Track>>, DomainResult<List<Track>>> { dataResult ->
+                when (dataResult) {
+                    is DataResult.Success -> DomainResult.Success(dataResult.data)
+                    is DataResult.Error -> throw dataResult.throwable
+                }
             }
-
-            if (result.isEmpty() && attempt < maxRetries) {
-                Log.w(
-                    "GetTracksByTagUseCase",
-                    "Empty result, retrying (${attempt + 1}/$maxRetries)..."
-                )
-                delay(retryDelay)
+            .retryWhen { cause, attempt ->
+                val shouldRetry = (cause is IOException) && attempt < maxRetries
+                if (shouldRetry) delay(retryDelay)
+                shouldRetry
             }
-
-            attempt++
-        } while (result.isEmpty() && attempt <= maxRetries)
-
-        emit(result)
+            .catch { throwable ->
+                emit(DomainResult.Error(throwable.toDomainError()))
+            }
     }
 }

@@ -2,13 +2,14 @@ package com.example.meditationbiorefactoring.music.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.meditationbiorefactoring.common.DomainResult
+import com.example.meditationbiorefactoring.common.toUiError
 import com.example.meditationbiorefactoring.music.domain.use_case.GetTagByStressLevelUseCase
 import com.example.meditationbiorefactoring.music.domain.use_case.track_use_case.GetTracksByTagUseCase
 import com.example.meditationbiorefactoring.music.domain.use_case.player_use_case.PlayerUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
@@ -112,18 +113,22 @@ class MusicViewModel @Inject constructor(
 
         loadTracksJob?.cancel()
         loadTracksJob = getTracksByTagUseCase(tag)
-            .onEach { tracks ->
-                _state.value = _state.value.copy(
-                    tracks = tracks,
-                    isLoading = false,
-                    error = if (tracks.isEmpty()) "No tracks found" else null
-                )
-            }
-            .catch { e ->
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Unknown error"
-                )
+            .onEach { result ->
+                when (result) {
+                    is DomainResult.Success -> {
+                        _state.value = _state.value.copy(
+                            tracks = result.data,
+                            isLoading = false,
+                            error = if (result.data.isEmpty()) "No tracks found" else null
+                        )
+                    }
+                    is DomainResult.Error -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = result.error.toUiError().message
+                        )
+                    }
+                }
             }
             .launchIn(viewModelScope)
     }
